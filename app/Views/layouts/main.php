@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewPhoneMX - Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="<?= base_url('css/dashboard.css') ?>" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="d-flex" id="wrapper">
+        <div class="bg-dark text-white" id="sidebar-wrapper">
+            <div class="sidebar-heading text-center py-4 primary-text fs-4 fw-bold text-uppercase border-bottom">
+                <i class="fas fa-mobile-alt me-2"></i>NewPhoneMX
+            </div>
+            <div class="list-group list-group-flush my-3">
+                <?php $rol = session('rol'); ?>
+
+                <a href="<?= base_url('dashboard/admin') ?>" class="list-group-item list-group-item-action bg-transparent second-text active">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+
+                <?php if ($rol == 'admin'): ?>
+                    <a href="<?= base_url('dashboard/productos') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-boxes me-2"></i>Inventario
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-users me-2"></i>Usuarios
+                    </a>
+                    <a href="<?= base_url('dashboard/categorias') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-tags me-2"></i>Categorías
+                    </a>
+                    <a href="<?= base_url('dashboard/filtros') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-filter me-2"></i>Filtros Globales
+                    </a>
+                <?php endif; ?>
+
+                <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                    <i class="fas fa-comments me-2"></i>Soporte
+                </a>
+
+                <a href="<?= base_url('logout') ?>" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold">
+                    <i class="fas fa-power-off me-2"></i>Salir
+                </a>
+            </div>
+        </div>
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light py-4 px-4 border-bottom">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-align-left primary-text fs-4 me-3" id="menu-toggle" style="cursor: pointer;"></i>
+                    <h2 class="fs-2 m-0">Panel de Control</h2>
+                </div>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle second-text fw-bold" href="#" id="navbarDropdown"
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user me-2"></i><?= session('nombre') ?>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="#">Perfil</a></li>
+                                <li><a class="dropdown-item" href="<?= base_url('logout') ?>">Cerrar Sesión</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="container-fluid px-4 py-4">
+                <?= $this->renderSection('contenido') ?>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        var el = document.getElementById("wrapper");
+        var toggleButton = document.getElementById("menu-toggle");
+
+        toggleButton.onclick = function() {
+            el.classList.toggle("toggled");
+        };
+    </script>
+</body>
+
+</html>
