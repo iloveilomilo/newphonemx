@@ -37,7 +37,7 @@ class Filtros extends BaseController
     public function delete($id)
     {
         $model = new FiltroModel();
-        // OJO: En el futuro, aquí validaremos que el filtro no esté usándose en productos 
+        //  aquí validaremos que el filtro no esté usándose en productos antes de eliminar
         $model->delete($id);
         
         return redirect()->to('/dashboard/filtros')->with('msg', 'Filtro eliminado');

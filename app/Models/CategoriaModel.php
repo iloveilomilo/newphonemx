@@ -10,5 +10,5 @@ class CategoriaModel extends Model
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $allowedFields    = ['nombre']; // Solo necesitamos el nombre por ahora
+    protected $allowedFields    = ['nombre'];  
 }

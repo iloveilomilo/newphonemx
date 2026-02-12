@@ -16,7 +16,6 @@ class Productos extends BaseController
 
     public function index()
     {
-        // SELECT * FROM productos JOIN inventario ...
         // Hacemos un JOIN para mostrar precio y stock en la lista
         $builder = $this->db->table('productos');
         $builder->select('productos.*, inventario.precio, inventario.stock, inventario.condicion');
@@ -46,9 +45,9 @@ class Productos extends BaseController
             return redirect()->back()->with('msg', 'Debes subir una imagen válida.');
         }
 
-        // 2. Subir la imagen primero (necesitamos el nombre)
+        // 2. Subir la imagen primero 
         $nuevoNombre = $img->getRandomName();
-        // Movemos la imagen. Si esto falla, el catch lo atrapará (o CodeIgniter lanzará excepción)
+        // Movemos la imagen. Si esto falla, el catch lo atrapará  
         try {
             $img->move(ROOTPATH . 'public/uploads/productos', $nuevoNombre);
         } catch (\Throwable $e) {
@@ -74,7 +73,7 @@ class Productos extends BaseController
             // B) INSERT EN INVENTARIO
             $datosInventario = [
                 'producto_id' => $productoId,
-                'sku'         => $this->request->getPost('sku'), // ¡Esto ya no fallará si hiciste el Paso 1!
+                'sku'         => $this->request->getPost('sku'),  
                 'condicion'   => $this->request->getPost('condicion'),
                 'precio'      => $this->request->getPost('precio'),
                 'stock'       => $this->request->getPost('stock'),
@@ -105,8 +104,7 @@ class Productos extends BaseController
         } catch (\Throwable $e) {
             // ¡ALERTA! Algo salió mal.
             
-            // 1. Cancelamos cualquier cambio en la BD (Rollback automático por transStart o manual si prefieres)
-            // CodeIgniter hace rollback automático si transStart falla, pero por seguridad:
+            // 1. Cancelamos cualquier cambio en la BD  
             if ($this->db->transStatus() === false) {
                 $this->db->transRollback();
             }
@@ -116,11 +114,9 @@ class Productos extends BaseController
                 unlink(ROOTPATH . 'public/uploads/productos/' . $nuevoNombre);
             }
 
-            // 3. Mensaje para el usuario (Amigable)
-            // Tip Pro: Puedes concatenar $e->getMessage() solo si estás en modo desarrollo para ver qué pasó
+            // 3. Mensaje para el usuario   
             $mensajeError = 'Ocurrió un error inesperado al guardar el producto. Inténtalo de nuevo.';
             
-            // Si estamos en desarrollo, agregamos el detalle técnico (Opcional)
             if (getenv('CI_ENVIRONMENT') === 'development') {
                 $mensajeError .= ' (Detalle: ' . $e->getMessage() . ')';
             }
@@ -130,8 +126,7 @@ class Productos extends BaseController
     }
 
     public function delete($id)
-    {
-        // BAJA LÓGICA (SOFT DELETE)
+    { 
         // En lugar de destruir la fila, le ponemos fecha de hoy en fecha_eliminacion
         
         $this->db->table('productos')->where('id', $id)->update([

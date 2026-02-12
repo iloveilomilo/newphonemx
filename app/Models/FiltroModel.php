@@ -10,5 +10,5 @@ class FiltroModel extends Model
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $allowedFields    = ['nombre']; // Ej: "Color", "GB", "Estética"
+    protected $allowedFields    = ['nombre'];  
 }

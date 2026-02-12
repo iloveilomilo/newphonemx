@@ -9,7 +9,7 @@ class Auth extends BaseController
 {
     public function index()
     {
-        // Si ya tiene ID en sesión, lo mandamos a su panel
+        // Si ya tiene ID en sesión, lo mandamos a su panel segun su rol
         if (session()->has('id')) {
             return $this->redirigirPorRol(session()->get('rol'));
         }
@@ -34,8 +34,8 @@ class Auth extends BaseController
             if (password_verify($password, $pass)) {
                 $auth = true;
             } 
-            // 2. AUTO-REPARACIÓN: Si tu contraseña en BD es texto plano ('1234567')
-            // Esto solo pasará la primera vez. Luego la encripta.
+            // 2. AUTO-REPARACIÓN: Si la contraseña en BD es texto plano 
+            // Esto solo pasará la primera vez. Luego se encripta.
             elseif ($password === $pass) {
                 $auth = true;
                 // Actualizamos la BD con el hash seguro
@@ -43,7 +43,7 @@ class Auth extends BaseController
             }
 
             if ($auth) {
-                // Guardamos ID como pediste y Rol para permisos
+                // Guardamos ID y Rol para permisos
                 $ses_data = [
                     'id'       => $data['id'],
                     'nombre'   => $data['nombre'],
@@ -69,7 +69,7 @@ class Auth extends BaseController
         return redirect()->to('/login');
     }
 
-    // Función auxiliar privada para no repetir código
+    // Función auxiliar para redirigir según rol
     private function redirigirPorRol($rol) {
         switch($rol) {
             case 'admin': return redirect()->to('/dashboard/admin');

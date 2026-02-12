@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Controllers\Administrador; // <--- OJO: Nuevo Namespace
+namespace App\Controllers\Administrador;  
 
-use App\Controllers\BaseController; // <--- Importante para heredar
+use App\Controllers\BaseController;  
 
 class Dashboard extends BaseController
 {

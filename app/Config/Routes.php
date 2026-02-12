@@ -14,7 +14,6 @@ $routes->post('/auth/login', 'Auth::login');
 $routes->get('/logout', 'Auth::logout');
 
 // Rutas Protegidas (Grupo Dashboard)
-// Aquí aplicamos el filtro 'adminAuth' que acabamos de registrar
 $routes->group('dashboard', ['namespace' => 'App\Controllers\Administrador', 'filter' => 'adminAuth'], function($routes) {
     
     // Panel principal

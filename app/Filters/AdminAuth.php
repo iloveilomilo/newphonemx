@@ -6,11 +6,11 @@ use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 
-class AdminAuth implements FilterInterface  // <--- CAMBIADO A AdminAuth
+class AdminAuth implements FilterInterface   
 {
     public function before(RequestInterface $request, $arguments = null)
     {
-        // 1. Verificar si hay sesión iniciada (Tu lógica de ID)
+        // 1. Verificar si hay sesión iniciada 
         if (!session()->has('id')) {
             return redirect()->to('/login')->with('msg', 'Debes iniciar sesión primero.');
         }
