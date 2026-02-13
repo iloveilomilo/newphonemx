@@ -34,8 +34,7 @@ class Auth extends BaseController
             if (password_verify($password, $pass)) {
                 $auth = true;
             } 
-            // 2. AUTO-REPARACIÓN: Si la contraseña en BD es texto plano 
-            // Esto solo pasará la primera vez. Luego se encripta.
+            // 2. Si la contraseña en BD es texto plano la encriptamos (esto solo pasará la primera vez, luego se encripta)
             elseif ($password === $pass) {
                 $auth = true;
                 // Actualizamos la BD con el hash seguro

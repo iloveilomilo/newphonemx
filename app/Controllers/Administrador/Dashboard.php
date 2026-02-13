@@ -9,7 +9,6 @@ class Dashboard extends BaseController
 {
     public function admin()
     {
-        // Actualizamos la ruta de la vista
         return view('Administrador/admin'); 
     }
 

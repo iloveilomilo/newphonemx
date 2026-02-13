@@ -39,15 +39,15 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Administrador', 'filter
 // =================================================================
 // Rutas para Soporte (Atención al Cliente)
 // =================================================================
-
-
-
-// cliente
-$routes->group('cliente', ['namespace' => 'App\Controllers\Cliente', 'filter' => 'clienteAuth'], function($routes) {
-
+$routes->group('soporte', ['namespace' => 'App\Controllers\Soporte', 'filter' => 'soporteAuth'], function($routes) {
+    // Aquí tu compañero pondrá sus rutas, ej:
+    // $routes->get('chats', 'Dashboard::index');
 });
-$routes->get('dashboard/cliente', 'Administrador\Dashboard::cliente');
-$routes->get('tienda/producto/(:num)', 'Administrador\Dashboard::detalle/$1');
-$routes->group('cliente', ['namespace' => 'App\Controllers\Cliente', 'filter' => 'clienteAuth'], function($routes) {
 
+// =================================================================
+// Rutas para Clientes
+// =================================================================
+$routes->group('cliente', ['namespace' => 'App\Controllers\Cliente', 'filter' => 'clienteAuth'], function($routes) {
+    // Aquí tu otro compañero pondrá sus rutas, ej:
+    // $routes->get('mi-cuenta', 'Perfil::index');
 });
