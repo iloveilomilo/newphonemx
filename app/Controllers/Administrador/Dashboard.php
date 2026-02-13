@@ -3,6 +3,7 @@
 namespace App\Controllers\Administrador;  
 
 use App\Controllers\BaseController;  
+use App\Models\ProductoClienteModel;
 
 class Dashboard extends BaseController
 {
@@ -19,6 +20,14 @@ class Dashboard extends BaseController
 
     public function cliente()
     {
-        echo "<h1>Tienda</h1>";
+        $modelo = new ProductoClienteModel();
+        
+        $busqueda = $this->request->getGet('q');
+
+        $datos['productos'] = $modelo->getProductosDisponibles($busqueda);
+        
+        $datos['busqueda'] = $busqueda;
+
+        return view('cliente/inicio', $datos);
     }
 }
