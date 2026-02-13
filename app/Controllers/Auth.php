@@ -74,7 +74,7 @@ class Auth extends BaseController
         switch($rol) {
             case 'admin': return redirect()->to('/admin/panel');
             case 'atencion_cliente': return redirect()->to('/dashboard/soporte');
-            default: return redirect()->to('/dashboard/cliente');
+            default: return redirect()->to('dashboard/cliente');
         }
     }
 }
