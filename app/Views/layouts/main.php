@@ -25,16 +25,16 @@
                 </a>
 
                 <?php if ($rol == 'admin'): ?>
-                    <a href="<?= base_url('dashboard/productos') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                    <a href="<?= base_url('admin/productos') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-boxes me-2"></i>Inventario
                     </a>
                     <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-users me-2"></i>Usuarios
                     </a>
-                    <a href="<?= base_url('dashboard/categorias') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                    <a href="<?= base_url('admin/categorias') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-tags me-2"></i>Categorías
                     </a>
-                    <a href="<?= base_url('dashboard/filtros') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                    <a href="<?= base_url('admin/filtros') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-filter me-2"></i>Filtros Globales
                     </a>
                 <?php endif; ?>
