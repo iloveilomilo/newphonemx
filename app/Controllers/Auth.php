@@ -34,8 +34,7 @@ class Auth extends BaseController
             if (password_verify($password, $pass)) {
                 $auth = true;
             } 
-            // 2. AUTO-REPARACIÓN: Si la contraseña en BD es texto plano 
-            // Esto solo pasará la primera vez. Luego se encripta.
+            // 2. Si la contraseña en BD es texto plano la encriptamos (esto solo pasará la primera vez, luego se encripta)
             elseif ($password === $pass) {
                 $auth = true;
                 // Actualizamos la BD con el hash seguro
@@ -74,7 +73,7 @@ class Auth extends BaseController
         switch($rol) {
             case 'admin': return redirect()->to('/admin/panel');
             case 'atencion_cliente': return redirect()->to('/dashboard/soporte');
-            default: return redirect()->to('/dashboard/cliente');
+            default: return redirect()->to('dashboard/cliente');
         }
     }
 }

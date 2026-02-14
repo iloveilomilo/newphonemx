@@ -9,7 +9,6 @@ class Dashboard extends BaseController
 {
     public function admin()
     {
-        // Actualizamos la ruta de la vista
         return view('Administrador/admin'); 
     }
 
@@ -18,16 +17,15 @@ class Dashboard extends BaseController
         return view('layouts/main'); 
     }
 
+
     public function cliente()
     {
         $modelo = new ProductoClienteModel();
-        
         $busqueda = $this->request->getGet('q');
 
         $datos['productos'] = $modelo->getProductosDisponibles($busqueda);
-        
         $datos['busqueda'] = $busqueda;
 
-        return view('cliente/inicio', $datos);
+        return view('cliente/inicio', $datos); 
     }
 }

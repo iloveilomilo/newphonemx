@@ -17,7 +17,7 @@ class AdminAuth implements FilterInterface
 
         // 2. ¿Es Administrador? Si NO lo es, lo sacamos.
         if (session()->get('rol') !== 'admin') {
-            // Lo mandamos a su panel de cliente o a una ruta de error
+            // se manda al panel de cliente o a una ruta de error
             return redirect()->to('/dashboard/cliente')->with('msg', 'Acceso denegado. Área exclusiva de administración.');
         }
     }
