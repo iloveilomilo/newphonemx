@@ -32,8 +32,10 @@
         </a>
     <?php endif; ?>
 
-<<<<<<< Updated upstream
                 <?php if ($rol == 'admin'): ?>
+                    <a href="<?= base_url('admin/panel') ?>" class="list-group-item list-group-item-action bg-transparent second-text active">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
                     <a href="<?= base_url('admin/productos') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-boxes me-2"></i>Inventario
                     </a>
@@ -46,23 +48,10 @@
                     <a href="<?= base_url('admin/filtros') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-filter me-2"></i>Filtros Globales
                     </a>
+                    <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                    <i class="fas fa-comments me-2"></i>Soporte
+                </a>
                 <?php endif; ?>
-=======
-    <?php if ($rol == 'admin'): ?>
-        <a href="<?= base_url('dashboard/admin') ?>" class="list-group-item list-group-item-action bg-transparent second-text active">
-            <i class="fas fa-tachometer-alt me-2"></i>Panel General
-        </a>
-        <a href="<?= base_url('dashboard/productos') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-            <i class="fas fa-boxes me-2"></i>Inventario (Productos)
-        </a>
-        <a href="<?= base_url('dashboard/usuarios') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-            <i class="fas fa-users-cog me-2"></i>Gestión de Usuarios
-        </a>
-        <a href="<?= base_url('dashboard/categorias') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-            <i class="fas fa-tags me-2"></i>Categorías
-        </a>
-    <?php endif; ?>
->>>>>>> Stashed changes
 
     <?php if ($rol == 'atencion a clientes'): ?>
         <a href="<?= base_url('soporte/tickets') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">

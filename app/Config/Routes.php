@@ -47,6 +47,9 @@ $routes->group('soporte', ['namespace' => 'App\Controllers\Soporte', 'filter' =>
 // =================================================================
 // Rutas para Clientes
 // =================================================================
+$routes->get('dashboard/cliente', 'Administrador\Dashboard::cliente');
+$routes->get('tienda/producto/(:num)', 'Administrador\Dashboard::detalle/$1');
+
 $routes->group('cliente', ['namespace' => 'App\Controllers\Cliente', 'filter' => 'clienteAuth'], function($routes) {
     // Aquí tu otro compañero pondrá sus rutas, ej:
     // $routes->get('mi-cuenta', 'Perfil::index');
