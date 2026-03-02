@@ -39,10 +39,13 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Administrador', 'filter
 // =================================================================
 // Rutas para Soporte (Atención al Cliente)
 // =================================================================
-$routes->group('soporte', ['namespace' => 'App\Controllers\Soporte', 'filter' => 'soporteAuth'], function($routes) {
-    // Aquí tu compañero pondrá sus rutas, ej:
-    // $routes->get('chats', 'Dashboard::index');
+$routes->group('admin', function($routes) {
+    $routes->get('soporte', 'Administrador\Soporte::index');
+    $routes->get('soporte/mensajes', 'Administrador\Soporte::mensajes');
+    $routes->get('soporte/historial', 'Administrador\Soporte::historial');
+    $routes->get('soporte/responder', 'Administrador\Soporte::responder');
 });
+
 
 // =================================================================
 // Rutas para Clientes
