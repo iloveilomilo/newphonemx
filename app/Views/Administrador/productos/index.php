@@ -4,7 +4,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Inventario de Productos</h2>
-    <a href="<?= base_url('dashboard/productos/crear') ?>" class="btn btn-primary">
+    <a href="<?= base_url('admin/productos/crear') ?>" class="btn btn-primary">
         <i class="fas fa-plus me-2"></i>Nuevo Producto
     </a>
 </div>
