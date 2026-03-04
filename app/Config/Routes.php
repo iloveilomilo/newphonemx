@@ -40,6 +40,10 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Administrador', 'filter
 // Rutas para Soporte (Atención al Cliente)
 // =================================================================
 $routes->group('soporte', ['namespace' => 'App\Controllers\Soporte', 'filter' => 'soporteAuth'], function($routes) {
+    $routes->get('soporte', 'Soporte::index');
+    $routes->get('mensajes', 'Soporte::mensajes');
+    $routes->get('historial', 'Soporte::historial');
+    $routes->get('responder', 'Soporte::responder');
 });
 
 

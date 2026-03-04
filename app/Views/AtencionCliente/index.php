@@ -31,15 +31,15 @@
         </div>
     </div>
     <div style="margin-top:30px;">
-    <a href="<?= base_url('admin/soporte/mensajes') ?>" class="btn btn-primary">
+    <a href="<?= base_url('soporte/mensajes') ?>" class="btn btn-primary">
         Ver Mensajes
     </a>
 
-    <a href="<?= base_url('admin/soporte/historial') ?>" class="btn btn-secondary">
+    <a href="<?= base_url('soporte/historial') ?>" class="btn btn-secondary">
         Ver Historial
     </a>
 
-    <a href="<?= base_url('admin/soporte/responder') ?>" class="btn btn-success">
+    <a href="<?= base_url('soporte/responder') ?>" class="btn btn-success">
         Responder Mensaje
     </a>
 </div>

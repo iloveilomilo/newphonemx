@@ -72,7 +72,7 @@ class Auth extends BaseController
     private function redirigirPorRol($rol) {
         switch($rol) {
             case 'admin': return redirect()->to('/admin/panel');
-            case 'atencion_cliente': return redirect()->to('admin/soporte');
+            case 'atencion_cliente': return redirect()->to('soporte/soporte');
             default: return redirect()->to('dashboard/cliente');
         }
     }

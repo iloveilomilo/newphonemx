@@ -56,7 +56,7 @@
                 <?php endif; ?>
 
     <?php if ($rol == 'atencion_cliente'): ?>
-        <a href="<?= base_url('admin/soporte') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+        <a href="<?= base_url('soporte/soporte') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
             <i class="fas fa-headset me-2"></i>Responder Dudas
         </a>
         <!-- <a href="<?= base_url('soporte/alertas') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
