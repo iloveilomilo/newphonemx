@@ -27,22 +27,28 @@ class Auth extends BaseController
         $data = $model->where('correo', $email)->first();
 
         if ($data) {
+            
+            // Bloquear acceso a usuarios dados de baja
+            if ($data['activo'] == 0) {
+                $session->setFlashdata('msg', 'Tu cuenta ha sido desactivada. Contacta a soporte.');
+                return redirect()->to('/login');
+            }
+
             $pass = $data['password'];
             $auth = false;
 
-            // 1. Verificación SEGURA (Hash)
+            // Verificación SEGURA (Hash)
             if (password_verify($password, $pass)) {
                 $auth = true;
             } 
-            // 2. Si la contraseña en BD es texto plano la encriptamos (esto solo pasará la primera vez, luego se encripta)
+            // Si la contraseña en BD es texto plano la encriptamos (esto solo pasará la primera vez, luego se encripta)
             elseif ($password === $pass) {
                 $auth = true;
-                // Actualizamos la BD con el hash seguro
+                // Actualiza la BD con el hash seguro
                 $model->update($data['id'], ['password' => password_hash($password, PASSWORD_DEFAULT)]);
             }
 
             if ($auth) {
-                // Guardamos ID y Rol para permisos
                 $ses_data = [
                     'id'       => $data['id'],
                     'nombre'   => $data['nombre'],

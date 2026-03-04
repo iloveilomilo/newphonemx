@@ -29,6 +29,12 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Administrador', 'filter
     $routes->get('filtros', 'Filtros::index');
     $routes->post('filtros/guardar', 'Filtros::store');
     $routes->get('filtros/eliminar/(:num)', 'Filtros::delete/$1');
+
+    // Usuarios
+    $routes->get('usuarios', 'Usuarios::index');
+    $routes->post('usuarios/guardar', 'Usuarios::store');
+    $routes->get('usuarios/eliminar/(:num)', 'Usuarios::delete/$1');
+    $routes->get('usuarios/reactivar/(:num)', 'Usuarios::reactivar/$1');
     
     // Productos
     $routes->get('productos', 'Productos::index');
