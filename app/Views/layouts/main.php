@@ -49,18 +49,20 @@
                         <i class="fas fa-filter me-2"></i>Filtros Globales
                     </a>
                     <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-                        <i class="fas fa-comments me-2"></i>Soporte
+                      <i class="fas fa-comments me-2"></i>Soporte
                     </a>
+
+
                 <?php endif; ?>
 
-                <?php if ($rol == 'atencion a clientes'): ?>
-                    <a href="<?= base_url('soporte/tickets') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-                        <i class="fas fa-headset me-2"></i>Responder Dudas
-                    </a>
-                    <a href="<?= base_url('soporte/alertas') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-                        <i class="fas fa-bell me-2"></i>Alertas de Correo
-                    </a>
-                <?php endif; ?>
+    <?php if ($rol == 'atencion_cliente'): ?>
+        <a href="<?= base_url('admin/soporte') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+            <i class="fas fa-headset me-2"></i>Responder Dudas
+        </a>
+        <!-- <a href="<?= base_url('soporte/alertas') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+            <i class="fas fa-bell me-2"></i>Alertas de Correo
+        </a> -->
+    <?php endif; ?>
 
                 <a href="<?= base_url('logout') ?>" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold border-top mt-3">
                     <i class="fas fa-power-off me-2"></i>Cerrar Sesión

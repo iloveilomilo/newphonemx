@@ -42,6 +42,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Administrador', 'filter
 $routes->group('soporte', ['namespace' => 'App\Controllers\Soporte', 'filter' => 'soporteAuth'], function($routes) {
 });
 
+
 // =================================================================
 // Rutas para Clientes
 // =================================================================
