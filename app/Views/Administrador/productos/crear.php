@@ -4,14 +4,14 @@
 
 <div class="d-flex justify-content-between mb-3">
     <h3>Nuevo Producto</h3>
-    <a href="<?= base_url('dashboard/productos') ?>" class="btn btn-secondary">Volver</a>
+    <a href="<?= base_url('admin/productos') ?>" class="btn btn-secondary">Volver</a>
 </div>
 
 <?php if(session()->getFlashdata('msg')):?>
     <div class="alert alert-danger"><?= session()->getFlashdata('msg') ?></div>
 <?php endif;?>
 
-<form action="<?= base_url('dashboard/productos/guardar') ?>" method="post" enctype="multipart/form-data">
+<form action="<?= base_url('admin/productos/guardar') ?>" method="post" enctype="multipart/form-data">
     
     <div class="row">
         <div class="col-md-8">
@@ -41,7 +41,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">SKU (Código único)</label>
-                        <input type="text" name="sku" class="form-control" required>
+                        <input type="text" class="form-control bg-light text-muted" value="Automático (Ej: NP-APP-N-0001)" readonly>
                     </div>
                 </div>
 
@@ -83,6 +83,32 @@
                     </select>
                 </div>
 
+                <div class="mb-4 bg-white p-3 border rounded">
+                    <label class="form-label fw-bold text-primary mb-2">¿Qué incluye?</label>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="caja_original" value="1" id="cajaCheck">
+                        <label class="form-check-label" for="cajaCheck">
+                            Caja original
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="cable_cargador" value="1" id="cableCheck">
+                        <label class="form-check-label" for="cableCheck">
+                            Cable cargador
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-4 bg-white p-3 border rounded">
+                    <label class="form-label fw-bold text-primary mb-2">Conectividad</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="esim" value="1" id="esimCheck">
+                        <label class="form-check-label" for="esimCheck">
+                            Solo eSIM (Sin ranura para chip físico)
+                        </label>
+                    </div>
+                </div>
+
                 <div class="mb-3">
                     <label class="form-label">Precio ($)</label>
                     <input type="number" step="0.01" name="precio" class="form-control" required>
@@ -113,10 +139,9 @@
 
         filtros.forEach(div => {
             let nombre = div.getAttribute('data-nombre');
-            // Si el filtro es "estética" o "batería" y la condición es NUEVO, ocultamos
             if ((nombre.includes('estética') || nombre.includes('estetica') || nombre.includes('batería') || nombre.includes('bateria')) && condicion === 'nuevo') {
                 div.style.display = 'none';
-                div.querySelector('input').value = ''; // Limpiar valor
+                div.querySelector('input').value = ''; 
             } else {
                 div.style.display = 'block';
             }

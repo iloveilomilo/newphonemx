@@ -17,25 +17,25 @@
             <div class="sidebar-heading text-center py-4 primary-text fs-4 fw-bold text-uppercase border-bottom">
                 <i class="fas fa-mobile-alt me-2"></i>NewPhoneMX
             </div>
-<div class="list-group list-group-flush my-3">
-    <?php $rol = session('rol'); ?>
+            <div class="list-group list-group-flush my-3">
+                <?php $rol = session('rol'); ?>
 
-    <?php if ($rol == 'cliente'): ?>
-        <a href="<?= base_url('dashboard/cliente') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-            <i class="fas fa-store me-2"></i>Tienda / Inicio
-        </a>
-        <a href="<?= base_url('dashboard/carrito') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-            <i class="fas fa-shopping-cart me-2"></i>Mi Carrito
-        </a>
-        <a href="<?= base_url('dashboard/mis-compras') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-            <i class="fas fa-receipt me-2"></i>Mis Compras
-        </a>
-    <?php endif; ?>
+                <?php if ($rol == 'cliente'): ?>
+                    <a href="<?= base_url('dashboard/cliente') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-store me-2"></i>Tienda / Inicio
+                    </a>
+                    <a href="<?= base_url('dashboard/carrito') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-shopping-cart me-2"></i>Mi Carrito
+                    </a>
+                    <a href="<?= base_url('dashboard/mis-compras') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-receipt me-2"></i>Mis Compras
+                    </a>
+                <?php endif; ?>
 
                 <?php if ($rol == 'admin'): ?>
                     <a href="<?= base_url('admin/panel') ?>" class="list-group-item list-group-item-action bg-transparent second-text active">
-                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                </a>
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
                     <a href="<?= base_url('admin/productos') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-boxes me-2"></i>Inventario
                     </a>
@@ -49,23 +49,23 @@
                         <i class="fas fa-filter me-2"></i>Filtros Globales
                     </a>
                     <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-                    <i class="fas fa-comments me-2"></i>Soporte
-                </a>
+                        <i class="fas fa-comments me-2"></i>Soporte
+                    </a>
                 <?php endif; ?>
 
-    <?php if ($rol == 'atencion a clientes'): ?>
-        <a href="<?= base_url('soporte/tickets') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-            <i class="fas fa-headset me-2"></i>Responder Dudas
-        </a>
-        <a href="<?= base_url('soporte/alertas') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-            <i class="fas fa-bell me-2"></i>Alertas de Correo
-        </a>
-    <?php endif; ?>
+                <?php if ($rol == 'atencion a clientes'): ?>
+                    <a href="<?= base_url('soporte/tickets') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-headset me-2"></i>Responder Dudas
+                    </a>
+                    <a href="<?= base_url('soporte/alertas') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-bell me-2"></i>Alertas de Correo
+                    </a>
+                <?php endif; ?>
 
-    <a href="<?= base_url('logout') ?>" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold border-top mt-3">
-        <i class="fas fa-power-off me-2"></i>Cerrar Sesión
-    </a>
-</div>
+                <a href="<?= base_url('logout') ?>" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold border-top mt-3">
+                    <i class="fas fa-power-off me-2"></i>Cerrar Sesión
+                </a>
+            </div>
         </div>
         <div id="page-content-wrapper">
             <nav class="navbar navbar-expand-lg navbar-light bg-light py-4 px-4 border-bottom">

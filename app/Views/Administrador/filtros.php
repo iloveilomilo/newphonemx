@@ -36,7 +36,7 @@
                                 <strong><?= $f['nombre'] ?></strong>
                             </td>
                             <td class="text-end">
-                                <a href="<?= base_url('dashboard/filtros/eliminar/'.$f['id']) ?>" 
+                                <a href="<?= base_url('admin/filtros/eliminar/'.$f['id']) ?>" 
                                    class="btn btn-sm btn-outline-danger"
                                    onclick="return confirm('¿Eliminar este filtro?');">
                                     <i class="fas fa-trash"></i>
@@ -64,7 +64,7 @@
         <h5 class="modal-title">Nueva Característica</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="<?= base_url('dashboard/filtros/guardar') ?>" method="post">
+      <form action="<?= base_url('admin/filtros/guardar') ?>" method="post">
           <div class="modal-body">
             <div class="mb-3">
                 <label for="nombre" class="form-label">Nombre del Filtro</label>
