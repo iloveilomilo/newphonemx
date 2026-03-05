@@ -24,7 +24,7 @@
                     <a href="<?= base_url('dashboard/cliente') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-store me-2"></i>Tienda / Inicio
                     </a>
-                    <a href="<?= base_url('dashboard/carrito') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                    <a href="<?= base_url('carrito') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-shopping-cart me-2"></i>Mi Carrito
                     </a>
                     <a href="<?= base_url('dashboard/mis-compras') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
