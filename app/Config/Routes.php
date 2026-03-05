@@ -56,8 +56,14 @@ $routes->group('soporte', ['namespace' => 'App\Controllers\Soporte', 'filter' =>
 // =================================================================
 // Rutas para Clientes
 // =================================================================
-$routes->get('dashboard/cliente', 'Administrador\Dashboard::cliente');
-$routes->get('tienda/producto/(:num)', 'Administrador\Dashboard::detalle/$1');
+$routes->get('dashboard/cliente', 'Administrador\Dashboard::cliente', ['filter' => 'clienteAuth']);
+$routes->get('tienda/producto/(:num)', 'Administrador\Dashboard::detalle/$1', ['filter' => 'clienteAuth']);
 
+// Rutas para el Carrito de Compras
+$routes->get('carrito', 'cliente\Carrito::index', ['filter' => 'clienteAuth']);
+$routes->post('carrito/agregar', 'cliente\Carrito::agregar', ['filter' => 'clienteAuth']);
+$routes->get('carrito/eliminar/(:segment)', 'cliente\Carrito::eliminar/$1', ['filter' => 'clienteAuth']);
+
+// Grupo para futuras rutas exclusivas
 $routes->group('cliente', ['namespace' => 'App\Controllers\Cliente', 'filter' => 'clienteAuth'], function($routes) {
 });
