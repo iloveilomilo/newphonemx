@@ -13,6 +13,8 @@
 <body>
 
     <div class="d-flex" id="wrapper">
+        
+        <?php if(session('id')): ?>
         <div class="bg-dark text-white" id="sidebar-wrapper">
             <div class="sidebar-heading text-center py-4 primary-text fs-4 fw-bold text-uppercase border-bottom">
                 <i class="fas fa-mobile-alt me-2"></i>NewPhoneMX
@@ -54,29 +56,33 @@
                     <a href="#" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                       <i class="fas fa-comments me-2"></i>Soporte
                     </a>
-
-
                 <?php endif; ?>
 
-    <?php if ($rol == 'atencion_cliente'): ?>
-        <a href="<?= base_url('soporte/soporte') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-            <i class="fas fa-headset me-2"></i>Responder Dudas
-        </a>
-        <!-- <a href="<?= base_url('soporte/alertas') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-            <i class="fas fa-bell me-2"></i>Alertas de Correo
-        </a> -->
-    <?php endif; ?>
+                <?php if ($rol == 'atencion_cliente'): ?>
+                    <a href="<?= base_url('soporte/soporte') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-headset me-2"></i>Responder Dudas
+                    </a>
+                <?php endif; ?>
 
                 <a href="<?= base_url('logout') ?>" class="list-group-item list-group-item-action bg-transparent text-danger fw-bold border-top mt-3">
                     <i class="fas fa-power-off me-2"></i>Cerrar Sesión
                 </a>
             </div>
         </div>
-        <div id="page-content-wrapper">
-            <nav class="navbar navbar-expand-lg navbar-light bg-light py-4 px-4 border-bottom">
+        <?php endif; ?>
+        <div id="page-content-wrapper" class="w-100">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 px-4 border-bottom">
+                
                 <div class="d-flex align-items-center">
-                    <i class="fas fa-align-left primary-text fs-4 me-3" id="menu-toggle" style="cursor: pointer;"></i>
-                    <h2 class="fs-2 m-0">Panel de Control</h2>
+                    <?php if(session('id')): ?>
+                        <i class="fas fa-align-left primary-text fs-4 me-3" id="menu-toggle" style="cursor: pointer;"></i>
+                        <h2 class="fs-4 m-0 fw-bold text-dark">Panel de Control</h2>
+                    <?php else: ?>
+                        <a href="<?= base_url('/') ?>" class="text-decoration-none d-flex align-items-center">
+                            <i class="fas fa-mobile-alt fs-3 me-2" style="color: #764ba2;"></i>
+                            <h2 class="fs-3 m-0 fw-bold text-uppercase" style="color: #764ba2; letter-spacing: 1px;">NEWPHONEMX</h2>
+                        </a>
+                    <?php endif; ?>
                 </div>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -119,9 +125,11 @@
         var el = document.getElementById("wrapper");
         var toggleButton = document.getElementById("menu-toggle");
 
-        toggleButton.onclick = function() {
-            el.classList.toggle("toggled");
-        };
+        if (toggleButton) {
+            toggleButton.onclick = function() {
+                el.classList.toggle("toggled");
+            };
+        }
     </script>
 </body>
 

@@ -3,18 +3,92 @@
 <?= $this->section('contenido') ?>
 
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4 mt-2">
-        <div>
-            <h2 class="fw-bold text-dark mb-0">Tienda / Catálogo</h2>
-            <p class="text-muted small">Celulares disponibles para entrega inmediata.</p>
-        </div>
-        
-        <form class="d-flex" role="search" action="<?= base_url('dashboard/cliente') ?>" method="get">
-            <input class="form-control me-2" type="search" name="q" value="<?= esc($busqueda ?? '') ?>" placeholder="Buscar..." aria-label="Search">
-            <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
-        </form>
-    </div>
 
+        
+    <div class="card shadow-sm border-0 mb-4 bg-light">
+        <div class="card-body p-3">
+            <div class="mb-2 mt-3">
+        <h2 class="fw-bold text-dark mb-0">Tienda / Catálogo</h2>
+        <p class="text-muted small">Celulares disponibles para entrega inmediata.</p>
+    </div>
+        
+        <form action="<?= base_url('dashboard/cliente') ?>" method="get" class="mb-4 mt-2">
+            
+            <div class="row g-2 align-items-center mb-1">
+                <div class="col-md-9 col-sm-8">
+                    <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white border">
+                        <span class="input-group-text bg-white border-0 text-primary ps-3 py-1"><i class="fas fa-search"></i></span>
+                        <input class="form-control border-0 shadow-none bg-white ps-2 py-1" type="search" name="q" value="<?= esc($busqueda ?? '') ?>" placeholder="Busca equipos (Ej. OLED, 8GB)...">
+                        <button class="btn btn-primary px-3 fw-bold py-1" type="submit" style="border-radius: 0 50rem 50rem 0;">Buscar</button>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-4 text-end">
+                    <button class="btn bg-white border shadow-sm text-primary fw-bold rounded-pill w-100 py-1" type="button" data-bs-toggle="collapse" data-bs-target="#filtrosAvanzados" aria-expanded="false" aria-controls="filtrosAvanzados">
+                        <i class="fas fa-sliders-h me-1"></i> Filtros
+                    </button>
+                </div>
+            </div>
+
+            <?php $filtrosActivos = (!empty($filtros['categoria']) || !empty($filtros['marca']) || !empty($filtros['condicion']) || !empty($filtros['precio_min']) || !empty($filtros['precio_max'])); ?>
+            
+            <div class="collapse <?= $filtrosActivos ? 'show' : '' ?>" id="filtrosAvanzados">
+                <div class="card card-body border border-light shadow-sm rounded-4 bg-white p-3 mt-2">
+                    <h6 class="fw-bold text-dark mb-3"><i class="fas fa-filter me-2 text-primary"></i>Refina tu búsqueda</h6>
+                    <div class="row g-3">
+                        
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted fw-bold mb-1">Categoría</label>
+                            <select name="categoria" class="form-select form-select-sm border-light bg-light rounded-3">
+                                <option value="">Todas</option>
+                                <?php if(isset($categorias)): foreach ($categorias as $cat): ?>
+                                    <option value="<?= $cat['id'] ?>" <?= (isset($filtros['categoria']) && $filtros['categoria'] == $cat['id']) ? 'selected' : '' ?>>
+                                        <?= esc($cat['nombre']) ?>
+                                    </option>
+                                <?php endforeach; endif; ?>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted fw-bold mb-1">Marca</label>
+                            <select name="marca" class="form-select form-select-sm border-light bg-light rounded-3">
+                                <option value="">Todas</option>
+                                <?php if(isset($marcas)): foreach ($marcas as $m): ?>
+                                    <option value="<?= $m['marca'] ?>" <?= (isset($filtros['marca']) && $filtros['marca'] == $m['marca']) ? 'selected' : '' ?>>
+                                        <?= strtoupper($m['marca']) ?>
+                                    </option>
+                                <?php endforeach; endif; ?>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted fw-bold mb-1">Condición</label>
+                            <select name="condicion" class="form-select form-select-sm border-light bg-light rounded-3">
+                                <option value="">Cualquier Estado</option>
+                                <option value="nuevo" <?= (isset($filtros['condicion']) && $filtros['condicion'] == 'nuevo') ? 'selected' : '' ?>>Nuevo</option>
+                                <option value="reacondicionado" <?= (isset($filtros['condicion']) && $filtros['condicion'] == 'reacondicionado') ? 'selected' : '' ?>>Reacondicionado</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted fw-bold mb-1">Rango de Precio</label>
+                            <div class="d-flex align-items-center">
+                                <input type="number" name="precio_min" class="form-control form-control-sm border-light bg-light rounded-3" placeholder="Min" value="<?= esc($filtros['precio_min'] ?? '') ?>">
+                                <span class="mx-2 text-muted">-</span>
+                                <input type="number" name="precio_max" class="form-control form-control-sm border-light bg-light rounded-3" placeholder="Max" value="<?= esc($filtros['precio_max'] ?? '') ?>">
+                            </div>
+                        </div>
+
+                        <div class="col-12 d-flex justify-content-end mt-3 pt-3 border-top">
+                            <a href="<?= base_url('dashboard/cliente') ?>" class="btn btn-light btn-sm text-muted rounded-pill px-3 me-2"><i class="fas fa-eraser me-2"></i>Limpiar</a>
+                            <button class="btn btn-primary btn-sm rounded-pill px-4" type="submit">Aplicar Filtros</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </form>
+        </div>
+    </div>
     <div class="row">
         <?php if (!empty($productos)): ?>
             <?php foreach ($productos as $prod): ?>

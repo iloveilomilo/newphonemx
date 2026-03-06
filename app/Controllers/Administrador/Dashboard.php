@@ -20,12 +20,28 @@ class Dashboard extends BaseController
 
     public function cliente()
     {
-        $modelo = new ProductoClienteModel();
-        $busqueda = $this->request->getGet('q');
+        $productoModel = new \App\Models\ProductoClienteModel();
+        $request = service('request');
 
-        $datos['productos'] = $modelo->getProductosDisponibles($busqueda);
-        $datos['busqueda'] = $busqueda;
+        // Capturamos la búsqueda y los filtros
+        $busqueda = $request->getGet('q');
+        $filtros = [
+            'categoria'  => $request->getGet('categoria'), 
+            'marca'      => $request->getGet('marca'),
+            'condicion'  => $request->getGet('condicion'),
+            'precio_min' => $request->getGet('precio_min'),
+            'precio_max' => $request->getGet('precio_max'),
+        ];
 
-        return view('cliente/inicio', $datos); 
+        // Le pasamos los filtros al modelo
+        $data = [
+            'productos'  => $productoModel->getProductosDisponibles($busqueda, $filtros),
+            'marcas'     => $productoModel->getMarcasDisponibles(),
+            'categorias' => $productoModel->getCategoriasDisponibles(), 
+            'busqueda'   => $busqueda,
+            'filtros'    => $filtros 
+        ];
+
+        return view('cliente/inicio', $data);
     }
 }
