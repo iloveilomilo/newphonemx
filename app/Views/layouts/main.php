@@ -20,10 +20,13 @@
             <div class="list-group list-group-flush my-3">
                 <?php $rol = session('rol'); ?>
 
-                <?php if ($rol == 'cliente'): ?>
+                <?php if ($rol == 'cliente' || empty($rol)): ?>
                     <a href="<?= base_url('dashboard/cliente') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-store me-2"></i>Tienda / Inicio
                     </a>
+                <?php endif; ?>
+
+                <?php if ($rol == 'cliente'): ?>
                     <a href="<?= base_url('carrito') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-shopping-cart me-2"></i>Mi Carrito
                     </a>
@@ -84,16 +87,23 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle second-text fw-bold" href="#" id="navbarDropdown"
-                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user me-2"></i><?= session('nombre') ?>
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="#">Perfil</a></li>
-                                <li><a class="dropdown-item" href="<?= base_url('logout') ?>">Cerrar Sesión</a></li>
-                            </ul>
-                        </li>
+                        <?php if(session('id')): ?>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle second-text fw-bold" href="#" id="navbarDropdown"
+                                    role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user me-2"></i><?= session('nombre') ?>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <li><a class="dropdown-item" href="#">Perfil</a></li>
+                                    <li><a class="dropdown-item" href="<?= base_url('logout') ?>">Cerrar Sesión</a></li>
+                                </ul>
+                            </li>
+                        <?php else: ?>
+                            <li class="nav-item d-flex align-items-center mt-2 mt-lg-0">
+                                <a href="<?= base_url('login') ?>" class="btn btn-outline-primary btn-sm me-2 fw-bold">Iniciar Sesión</a>
+                                <a href="<?= base_url('registro') ?>" class="btn btn-primary btn-sm fw-bold">Crear Cuenta</a>
+                            </li>
+                        <?php endif; ?>
                     </ul>
                 </div>
             </nav>

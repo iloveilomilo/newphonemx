@@ -54,6 +54,10 @@
             <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-primary py-2">Iniciar Sesión</button>
             </div>
+            <div class="text-center mt-4">
+                <p class="text-muted mb-1">¿No tienes cuenta?</p>
+                <a href="<?= base_url('registro') ?>" class="btn btn-outline-secondary w-100">Crear cuenta nueva</a>
+            </div>
         </form>
     </div>
 

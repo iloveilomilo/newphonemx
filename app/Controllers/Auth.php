@@ -71,7 +71,7 @@ class Auth extends BaseController
     public function logout()
     {
         session()->destroy();
-        return redirect()->to('/login');
+        return redirect()->to('/');
     }
 
     // Función auxiliar para redirigir según rol
@@ -81,5 +81,47 @@ class Auth extends BaseController
             case 'atencion_cliente': return redirect()->to('soporte/soporte');
             default: return redirect()->to('dashboard/cliente');
         }
+    }
+
+    // =========================================================
+    // FUNCIONES DE REGISTRO DE NUEVOS CLIENTES
+    // =========================================================
+
+    public function registro()
+    {
+        // Muestra la vista del formulario
+        return view('auth/registro');
+    }
+
+    public function guardar_registro()
+    {
+        $usuarioModel = new \App\Models\UsuarioModel();
+
+        // 1. Recibimos el correo
+        $correo = $this->request->getPost('correo');
+
+        // 2. Verificamos que el correo no exista ya en la base de datos
+        $existe = $usuarioModel->where('correo', $correo)->first();
+        if ($existe) {
+            return redirect()->back()->with('error', 'Este correo ya está registrado. Intenta iniciar sesión.');
+        }
+
+        // 3. Preparamos el arreglo con los datos exactos de tu BD
+        $data = [
+            'nombre'    => $this->request->getPost('nombre'),
+            'apellidos' => $this->request->getPost('apellidos'),
+            'correo'    => $correo,
+            'telefono'  => $this->request->getPost('telefono'),
+            'password'  => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT), // Encriptación obligatoria
+            'rol'       => 'cliente', // Forzamos el rol para que no entren al panel admin
+            'activo'    => 1
+        ];
+
+        // 4. Insertamos en la base de datos
+        $usuarioModel->insert($data);
+
+        // 5. Redirigimos al login con mensaje de éxito
+        session()->setFlashdata('msg', '¡Cuenta creada exitosamente! Ya puedes iniciar sesión.');
+        return redirect()->to(base_url('login'));
     }
 }

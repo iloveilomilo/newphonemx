@@ -135,7 +135,19 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // --- 1. Lógica Visual del Modal (Lo que tú ya tenías) ---
+            // abrir modal si venimos del carrito
+        const productoParaAbrir = <?= isset($_GET['ver_producto']) ? esc($_GET['ver_producto']) : 'null' ?>;
+        
+        if (productoParaAbrir) {
+            // Le damos 100 milisegundos de respiro al navegador para que cargue los datos
+            setTimeout(() => {
+                const botonDetalle = document.querySelector('.btn-detalle[data-id="' + productoParaAbrir + '"]');
+                if (botonDetalle) {
+                    botonDetalle.click();
+                    window.history.replaceState({}, document.title, "<?= base_url('dashboard/cliente') ?>");
+                }
+            }, 100);
+        }
         const botonesDetalle = document.querySelectorAll('.btn-detalle');
         
         botonesDetalle.forEach(boton => {
@@ -150,7 +162,7 @@
                 const condicion = this.getAttribute('data-condicion');
                 const stock = this.getAttribute('data-stock');
                 const img = this.getAttribute('data-img');
-                const id = this.getAttribute('data-id'); // NUEVO: Extraemos el ID
+                const id = this.getAttribute('data-id'); 
 
                 document.getElementById('modalNombre').textContent = nombre;
                 document.getElementById('modalMarca').textContent = marca;
@@ -159,7 +171,6 @@
                 document.getElementById('modalStock').textContent = stock;
                 document.getElementById('modalImg').src = img;
                 document.getElementById('modalImg').src = '<?= base_url("uploads/productos/") ?>' + img;
-                // Lógica de Precios para el Modal
                 const priceContainer = document.getElementById('modalPriceContainer');
                 if (descuento > 0) {
                     priceContainer.innerHTML = `
@@ -180,7 +191,7 @@
                     ? 'badge bg-success' 
                     : 'badge bg-warning text-dark';
 
-                // --- NUEVO: Pasar los datos al botón "Agregar" dentro del Modal ---
+                // Pasar los datos al botón "Agregar"
                 const btnModal = document.getElementById('btnModalAgregar');
                 btnModal.setAttribute('data-id', id);
                 btnModal.setAttribute('data-nombre', nombre);
@@ -189,17 +200,36 @@
             });
         });
 
-        // --- 2. Lógica Funcional para Agregar al Carrito vía AJAX ---
+        // Agregar al Carrito
         const botonesAgregar = document.querySelectorAll('.btn-agregar-carrito');
         
         botonesAgregar.forEach(boton => {
             boton.addEventListener('click', function() {
+                
+                // Verificamos si el usuario tiene sesión iniciada
+                const logueado = <?= session('id') ? 'true' : 'false' ?>;
+                
+                if(!logueado) {
+                    // Si NO está logueado, mostramos mensaje y lo mandamos al login
+                    Swal.fire({
+                        title: '¡Atención!',
+                        text: 'Debes iniciar sesión o crear una cuenta para agregar equipos al carrito.',
+                        icon: 'warning',
+                        confirmButtonText: 'Ir a Iniciar Sesión',
+                        confirmButtonColor: '#764ba2'
+                    }).then(() => {
+                        window.location.href = '<?= base_url("login") ?>';
+                    });
+                    
+                    return; 
+                }
+
+                // Si SÍ está logueado, procedemos a agregarlo
                 const id = this.getAttribute('data-id');
                 const nombre = this.getAttribute('data-nombre');
                 const precio = this.getAttribute('data-precio');
                 const img = this.getAttribute('data-img');
 
-                // Si no hay ID, no hacemos nada (por seguridad)
                 if(!id) return;
 
                 const formData = new FormData();
@@ -215,14 +245,6 @@
                 .then(response => response.json())
                 .then(data => {
                     if(data.success) {
-                    fetch('<?= base_url('carrito/agregar') ?>', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if(data.success) {
-                        // REEMPLAZAMOS EL alert() POR SWEETALERT2
                         Swal.fire({
                             title: '¡Agregado!',
                             text: nombre + ' se añadió a tu carrito.',
@@ -233,9 +255,6 @@
                             timer: 3000,
                             timerProgressBar: true
                         });
-                    }
-                })
-                .catch(error => console.error('Error:', error));
                     }
                 })
                 .catch(error => console.error('Error:', error));
