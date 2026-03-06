@@ -41,7 +41,7 @@
                                             <td class="ps-4">
                                                 <div class="d-flex align-items-center">
                                                     <img src="<?= base_url('uploads/productos/' . $item['imagen']) ?>" alt="<?= $item['nombre'] ?>" class="img-thumbnail border-0 me-3" style="width: 60px; height: 60px; object-fit: contain;">
-                                                    <span class="fw-bold text-dark"><?= $item['nombre'] ?></span>
+                                                    <a href="<?= base_url('dashboard/cliente?ver_producto=' . $item['inventario_id']) ?>" class="fw-bold text-primary text-decoration-none"><?= $item['nombre'] ?></a>
                                                 </div>
                                             </td>
                                             <td class="text-center text-muted">$<?= number_format($item['precio'], 2) ?></td>

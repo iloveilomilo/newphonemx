@@ -6,12 +6,19 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 
-$routes->get('/', 'Auth::index');
+// Rutas Públicas y de Autenticación
 
-// Rutas de Login/Logout
+// página de inicio para TODOS
+$routes->get('/', 'Administrador\Dashboard::cliente'); 
+$routes->get('dashboard/cliente', 'Administrador\Dashboard::cliente'); 
+$routes->get('tienda/producto/(:num)', 'Administrador\Dashboard::detalle/$1');
+
+// Rutas de Login y Registro
 $routes->get('/login', 'Auth::index');
 $routes->post('/auth/login', 'Auth::login');
 $routes->get('/logout', 'Auth::logout');
+$routes->get('/registro', 'Auth::registro'); 
+$routes->post('/auth/guardar_registro', 'Auth::guardar_registro'); 
 
 // =================================================================
 // Rutas para Administración
@@ -56,8 +63,7 @@ $routes->group('soporte', ['namespace' => 'App\Controllers\Soporte', 'filter' =>
 // =================================================================
 // Rutas para Clientes
 // =================================================================
-$routes->get('dashboard/cliente', 'Administrador\Dashboard::cliente', ['filter' => 'clienteAuth']);
-$routes->get('tienda/producto/(:num)', 'Administrador\Dashboard::detalle/$1', ['filter' => 'clienteAuth']);
+
 
 // Rutas para el Carrito de Compras
 $routes->get('carrito', 'cliente\Carrito::index', ['filter' => 'clienteAuth']);
