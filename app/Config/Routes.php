@@ -47,6 +47,13 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Administrador', 'filter
     $routes->get('productos', 'Productos::index');
     $routes->get('productos/crear', 'Productos::create');
     $routes->post('productos/guardar', 'Productos::store');
+    
+    // Edición de Productos
+    $routes->get('productos/editar/(:num)', 'Productos::edit/$1');
+    $routes->post('productos/actualizar/(:num)', 'Productos::actualizar/$1');
+
+    // Eliminación/Baja de Productos
+    $routes->get('productos/eliminar/(:num)', 'Productos::delete/$1');
 });
 
 // =================================================================

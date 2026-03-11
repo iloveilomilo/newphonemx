@@ -75,7 +75,7 @@ class ProductoModel extends Model
             // Insertar Filtros 
             $filtros = $this->db->table('filtros')->get()->getResultArray();
             foreach ($filtros as $filtro) {
-                // Buscamos si el valor viene en el POST
+                // Se busca si el valor viene en el POST
                 $valor = $postData['filtro_' . $filtro['id']] ?? null;
                 if (!empty($valor)) {
                     $this->db->table('valores_filtros')->insert([
@@ -115,6 +115,72 @@ class ProductoModel extends Model
         $this->db->transComplete();
         
         return $this->db->transStatus();
+    }
+    
+
+
+    // =================================================================
+    // OBTENER UN PRODUCTO COMPLETO PARA EDITAR
+    // =================================================================
+    public function obtenerProductoCompletoPorId($id)
+    {
+        return $this->select('productos.*, inventario.id as inventario_id, inventario.sku, inventario.condicion, inventario.caja_original, inventario.cable_cargador, inventario.esim, inventario.precio, inventario.stock, inventario.descuento')
+                    ->join('inventario', 'inventario.producto_id = productos.id', 'inner')
+                    ->where('productos.id', $id)
+                    ->first();
+    }
+
+    // =================================================================
+    // ACTUALIZAR PRODUCTO, INVENTARIO Y FILTROS
+    // =================================================================
+    public function actualizarProductoCompleto($id, $datosProducto, $postData)
+    {
+        try {
+            $this->db->transException(true)->transStart();
+
+            // 1. Actualizar tabla productos (Datos generales)
+            $this->update($id, $datosProducto);
+
+            // 2. Actualizar tabla inventario
+            $datosInventario = [
+                'condicion'      => $postData['condicion'],
+                'caja_original'  => isset($postData['caja_original']) ? 1 : 0,
+                'cable_cargador' => isset($postData['cable_cargador']) ? 1 : 0,
+                'esim'           => isset($postData['esim']) ? 1 : 0,
+                'precio'         => $postData['precio'],
+                'stock'          => $postData['stock'],
+                'descuento'      => $postData['descuento'] ?? 0
+            ];
+            $this->db->table('inventario')->where('producto_id', $id)->update($datosInventario);
+
+            // Necesitamos el ID del inventario para los filtros
+            $inventario = $this->db->table('inventario')->where('producto_id', $id)->get()->getRow();
+            $inventarioId = $inventario->id;
+
+            // 3. Actualizar Filtros (La forma más limpia es borrar los viejos y crear los nuevos)
+            $this->db->table('valores_filtros')->where('inventario_id', $inventarioId)->delete();
+            
+            $filtros = $this->db->table('filtros')->get()->getResultArray();
+            foreach ($filtros as $filtro) {
+                $valor = $postData['filtro_' . $filtro['id']] ?? null;
+                if (!empty($valor)) {
+                    $this->db->table('valores_filtros')->insert([
+                        'inventario_id' => $inventarioId,
+                        'filtro_id'     => $filtro['id'],
+                        'valor'         => $valor
+                    ]);
+                }
+            }
+
+            $this->db->transComplete();
+            return true;
+
+        } catch (\Throwable $e) {
+            if ($this->db->transStatus() === false) {
+                $this->db->transRollback();
+            }
+            throw $e; 
+        }
     }
 
 }
