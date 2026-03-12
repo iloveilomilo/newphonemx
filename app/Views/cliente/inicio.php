@@ -149,7 +149,8 @@
                                             data-desc="<?= $prod['descripcion'] ?>"
                                             data-condicion="<?= $prod['condicion'] ?>"
                                             data-stock="<?= $prod['stock'] ?>"
-                                            data-img="<?= $prod['imagen_principal'] ?>"> Ver Detalles
+                                            data-img="<?= $prod['imagen_principal'] ?>"
+                                            data-galeria='<?= $prod['galeria'] ?>'> Ver Detalles
                                     </button>
                                     
                                     <button class="btn btn-primary btn-sm btn-agregar-carrito" 
@@ -178,8 +179,20 @@
       <div class="modal-body pb-5">
         <div class="row">
             <div class="col-md-6 text-center mb-3 mb-md-0">
-                <img id="modalImg" src="" class="img-fluid rounded" style="max-height: 350px;">
+                <div id="modalCarousel" class="carousel carousel-dark slide" data-bs-ride="carousel">
+                    <div class="carousel-inner rounded" id="modalCarouselInner">
+                        </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#modalCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Anterior</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#modalCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Siguiente</span>
+                    </button>
+                </div>
             </div>
+
             <div class="col-md-6">
                 <small id="modalMarca" class="text-uppercase text-muted fw-bold"></small> <small class="text-muted">| SKU: <span id="modalSku"></span></small>
                 <h2 id="modalNombre" class="fw-bold mb-2"></h2>
@@ -195,23 +208,31 @@
                 <p id="modalDesc" class="text-muted small" style="line-height: 1.6;"></p>
 
                 <div class="mt-4 border-top pt-3">
-                    <button class="btn btn-outline-info btn-sm w-100 mb-2 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDuda" aria-expanded="false" aria-controls="collapseDuda">
-                        <i class="fas fa-question-circle me-2"></i>¿Tienes una duda sobre este equipo?
-                    </button>
-                    <div class="collapse" id="collapseDuda">
-                        <div class="card card-body bg-light border-info p-3">
-                            <form id="formDudaSoporte">
-                                <input type="hidden" id="dudaProductoId" name="producto_id">
-                                <label class="form-label small fw-bold text-dark mb-1">Escribe tu pregunta:</label>
-                                <textarea class="form-control form-control-sm mb-2" id="dudaMensaje" name="mensaje" rows="2" placeholder="Ej. ¿Qué accesorios incluye en la caja?" required></textarea>
-                                <div class="text-end">
-                                    <button type="submit" class="btn btn-info btn-sm text-white fw-bold px-3">
-                                        <i class="fas fa-paper-plane me-1"></i>Enviar a Soporte
-                                    </button>
-                                </div>
-                            </form>
+                    <?php if(session('id')): ?>
+                        <button class="btn btn-outline-info btn-sm w-100 mb-2 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDuda" aria-expanded="false" aria-controls="collapseDuda">
+                            <i class="fas fa-question-circle me-2"></i>¿Tienes una duda sobre este equipo?
+                        </button>
+                        <div class="collapse" id="collapseDuda">
+                            <div class="card card-body bg-light border-info p-3">
+                                <form id="formDudaSoporte">
+                                    <input type="hidden" id="dudaProductoId" name="producto_id">
+                                    <label class="form-label small fw-bold text-dark mb-1">Escribe tu pregunta:</label>
+                                    <textarea class="form-control form-control-sm mb-2" id="dudaMensaje" name="mensaje" rows="2" placeholder="Ej. ¿Qué accesorios incluye en la caja?" required></textarea>
+                                    <div class="text-end">
+                                        <button type="submit" class="btn btn-info btn-sm text-white fw-bold px-3">
+                                            <i class="fas fa-paper-plane me-1"></i>Enviar a Soporte
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                    </div>
+                    <?php else: ?>
+                        <div class="alert alert-secondary text-center py-2 mb-0 small" role="alert">
+                            <i class="fas fa-info-circle me-1"></i> 
+                            <a href="<?= base_url('login') ?>" class="alert-link text-info">Inicia sesión</a> o 
+                            <a href="<?= base_url('registro') ?>" class="alert-link text-info">crea una cuenta</a> para hacerle preguntas al soporte.
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <div class="d-grid gap-2 mt-4">
@@ -258,14 +279,30 @@
                 const img = this.getAttribute('data-img');
                 const id = this.getAttribute('data-id'); 
 
-                document.getElementById('dudaProductoId').value = id;
+                // si el cliente tiene sesión
+                const inputDuda = document.getElementById('dudaProductoId');
+                if (inputDuda) {
+                    inputDuda.value = id;
+                }
                 document.getElementById('modalNombre').textContent = nombre;
                 document.getElementById('modalMarca').textContent = marca;
                 document.getElementById('modalSku').textContent = sku;
                 document.getElementById('modalDesc').textContent = desc;
                 document.getElementById('modalStock').textContent = stock;
-                document.getElementById('modalImg').src = img;
-                document.getElementById('modalImg').src = '<?= base_url("uploads/productos/") ?>' + img;
+                const galeria = JSON.parse(this.getAttribute('data-galeria'));
+                const carouselInner = document.getElementById('modalCarouselInner');
+                carouselInner.innerHTML = ''; 
+
+                galeria.forEach((imgArchivo, index) => {
+                    const activeClass = index === 0 ? 'active' : '';
+                    const imgUrl = '<?= base_url("uploads/productos/") ?>' + imgArchivo;
+                    
+                    carouselInner.innerHTML += `
+                        <div class="carousel-item ${activeClass}">
+                            <img src="${imgUrl}" class="d-block w-100 img-fluid" style="height: 350px; object-fit: contain;">
+                        </div>
+                    `;
+                });
                 const priceContainer = document.getElementById('modalPriceContainer');
                 if (descuento > 0) {
                     priceContainer.innerHTML = `
