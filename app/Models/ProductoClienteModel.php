@@ -49,7 +49,27 @@ class ProductoClienteModel extends Model
             $builder->where('(inventario.precio - (inventario.precio * (IFNULL(inventario.descuento, 0) / 100))) <=', (float)$filtros['precio_max']);
         }
 
-        return $builder->findAll();
+        $productos = $builder->findAll();
+
+        $db = \Config\Database::connect();
+        foreach ($productos as &$prod) {
+            $imagenes = $db->table('imagenes_producto')
+                           ->where('producto_id', $prod['id'])
+                           ->get()->getResultArray();
+            
+            // Extraemos solo los nombres de las fotos
+            $nombres_imagenes = array_column($imagenes, 'nombre_archivo');
+            
+            // Si el equipo aún no tiene fotos en la galería, le dejamos la de portada por defecto
+            if (empty($nombres_imagenes)) {
+                $nombres_imagenes[] = $prod['imagen_principal'];
+            }
+            
+            // Lo convertimos a texto JSON
+            $prod['galeria'] = json_encode($nombres_imagenes);
+        }
+
+        return $productos;
     }
 
     public function getMarcasDisponibles()
