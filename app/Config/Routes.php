@@ -71,6 +71,12 @@ $routes->post('carrito/agregar', 'cliente\Carrito::agregar', ['filter' => 'clien
 $routes->get('carrito/eliminar/(:segment)', 'cliente\Carrito::eliminar/$1', ['filter' => 'clienteAuth']);
 $routes->post('soporte/enviar_duda', 'cliente\SoporteCliente::enviar_duda', ['filter' => 'clienteAuth']);
 
+// Historial de preguntas del cliente
+$routes->get('mis-preguntas', 'cliente\SoporteCliente::mis_preguntas', ['filter' => 'clienteAuth']);
+// Rutas para el chat individual
+$routes->get('mis-preguntas/chat/(:num)', 'cliente\SoporteCliente::ver_chat/$1', ['filter' => 'clienteAuth']);
+$routes->post('mis-preguntas/responder', 'cliente\SoporteCliente::responder_chat', ['filter' => 'clienteAuth']);
+
 // Grupo para futuras rutas exclusivas
 $routes->group('cliente', ['namespace' => 'App\Controllers\Cliente', 'filter' => 'clienteAuth'], function($routes) {
 });
