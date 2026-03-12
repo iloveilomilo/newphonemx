@@ -69,6 +69,7 @@ $routes->group('soporte', ['namespace' => 'App\Controllers\Soporte', 'filter' =>
 $routes->get('carrito', 'cliente\Carrito::index', ['filter' => 'clienteAuth']);
 $routes->post('carrito/agregar', 'cliente\Carrito::agregar', ['filter' => 'clienteAuth']);
 $routes->get('carrito/eliminar/(:segment)', 'cliente\Carrito::eliminar/$1', ['filter' => 'clienteAuth']);
+$routes->post('soporte/enviar_duda', 'cliente\SoporteCliente::enviar_duda', ['filter' => 'clienteAuth']);
 
 // Grupo para futuras rutas exclusivas
 $routes->group('cliente', ['namespace' => 'App\Controllers\Cliente', 'filter' => 'clienteAuth'], function($routes) {

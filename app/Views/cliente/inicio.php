@@ -194,6 +194,26 @@
                 <h6 class="fw-bold mt-3">Descripción:</h6>
                 <p id="modalDesc" class="text-muted small" style="line-height: 1.6;"></p>
 
+                <div class="mt-4 border-top pt-3">
+                    <button class="btn btn-outline-info btn-sm w-100 mb-2 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDuda" aria-expanded="false" aria-controls="collapseDuda">
+                        <i class="fas fa-question-circle me-2"></i>¿Tienes una duda sobre este equipo?
+                    </button>
+                    <div class="collapse" id="collapseDuda">
+                        <div class="card card-body bg-light border-info p-3">
+                            <form id="formDudaSoporte">
+                                <input type="hidden" id="dudaProductoId" name="producto_id">
+                                <label class="form-label small fw-bold text-dark mb-1">Escribe tu pregunta:</label>
+                                <textarea class="form-control form-control-sm mb-2" id="dudaMensaje" name="mensaje" rows="2" placeholder="Ej. ¿Qué accesorios incluye en la caja?" required></textarea>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-info btn-sm text-white fw-bold px-3">
+                                        <i class="fas fa-paper-plane me-1"></i>Enviar a Soporte
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="d-grid gap-2 mt-4">
                     <button id="btnModalAgregar" class="btn btn-primary btn-lg btn-agregar-carrito">
                         <i class="fas fa-shopping-cart me-2"></i> Añadir al Carrito
@@ -238,6 +258,7 @@
                 const img = this.getAttribute('data-img');
                 const id = this.getAttribute('data-id'); 
 
+                document.getElementById('dudaProductoId').value = id;
                 document.getElementById('modalNombre').textContent = nombre;
                 document.getElementById('modalMarca').textContent = marca;
                 document.getElementById('modalSku').textContent = sku;
@@ -335,6 +356,43 @@
             });
         });
     });
+    //ENVÍO DE DUDAS A SOPORTE 
+        const formDuda = document.getElementById('formDudaSoporte');
+        if(formDuda) {
+            formDuda.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Verificamos si tiene sesión 
+                const logueado = <?= session('id') ? 'true' : 'false' ?>;
+                if(!logueado) {
+                    Swal.fire({
+                        title: '¡Inicia Sesión!',
+                        text: 'Debes iniciar sesión para poder enviar preguntas a soporte.',
+                        icon: 'info',
+                        confirmButtonText: 'Ir al Login',
+                        confirmButtonColor: '#764ba2'
+                    }).then(() => { window.location.href = '<?= base_url("login") ?>'; });
+                    return;
+                }
+
+                // Enviamos la duda al servidor
+                const formData = new FormData(this);
+                
+                fetch('<?= base_url('soporte/enviar_duda') ?>', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success) {
+                        Swal.fire('¡Pregunta Enviada!', 'El equipo de soporte te responderá pronto. Podrás ver la respuesta en tu panel.', 'success');
+                        this.reset(); 
+                        document.getElementById('collapseDuda').classList.remove('show'); 
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        }
 </script>
 
 <style>
