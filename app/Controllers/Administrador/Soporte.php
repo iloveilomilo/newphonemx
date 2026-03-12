@@ -12,19 +12,34 @@ class Soporte extends BaseController
     
     public function index()
     {
-        $data['rol'] = session()->get('rol'); 
+        $data['rol'] = session()->get('rol') ?? 'atencion_cliente'; 
         return view('AtencionCliente/index', $data);
     }
 
     public function mensajes()
     {
-        $data['rol'] = session()->get('rol');
+        $db = \Config\Database::connect();
+        
+        // Traemos todas las conversaciones reales ordenadas por fecha
+        $builder = $db->table('salas_chat');
+        $builder->select('salas_chat.*, usuarios.nombre, usuarios.apellidos');
+        $builder->join('usuarios', 'usuarios.id = salas_chat.cliente_id', 'left');
+        $builder->where('salas_chat.estado !=', 'cerrada'); // No mostramos los archivados
+        $builder->orderBy('salas_chat.fecha_inicio', 'DESC');
+        
+        $conversaciones = $builder->get()->getResultArray();
+
+        $data = [
+            'conversaciones' => $conversaciones,
+            'rol'            => session()->get('rol') ?? 'atencion_cliente'
+        ];
+
         return view('AtencionCliente/mensajes', $data);
     }
 
     public function historial()
     {
-        $data['rol'] = session()->get('rol');
+        $data['rol'] = session()->get('rol') ?? 'atencion_cliente';
         return view('AtencionCliente/historial', $data);
     }
 
@@ -53,7 +68,7 @@ class Soporte extends BaseController
 
         $data = [
             'conversacion' => $conversacion,
-            'rol'          => session()->get('rol') 
+            'rol'          => session()->get('rol') ?? 'atencion_cliente'
         ];
 
         return view('AtencionCliente/responder', $data);
