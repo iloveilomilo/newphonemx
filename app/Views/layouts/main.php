@@ -32,7 +32,7 @@
                     <a href="<?= base_url('carrito') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-shopping-cart me-2"></i>Mi Carrito
                     </a>
-                    <a href="<?= base_url('dashboard/mis-compras') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                    <a href="<?= base_url('mis-compras') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-receipt me-2"></i>Mis Compras
                     </a>
                     
@@ -126,7 +126,7 @@
                                     <i class="fas fa-user me-2"></i><?= session('nombre') ?>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <li><a class="dropdown-item" href="#">Perfil</a></li>
+                                    <li><a class="dropdown-item" href="<?= base_url('perfil') ?>">Perfil</a></li>
                                     <li><a class="dropdown-item" href="<?= base_url('logout') ?>">Cerrar Sesión</a></li>
                                 </ul>
                             </li>

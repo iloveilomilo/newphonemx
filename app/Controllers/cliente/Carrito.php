@@ -80,4 +80,33 @@ class Carrito extends BaseController
         
         return redirect()->to(base_url('carrito'));
     }
+    
+    public function actualizar()
+    {
+        $id = $this->request->getPost('id');
+        $accion = $this->request->getPost('accion');
+        
+        $carritoModel = new \App\Models\CarritoModel();
+        
+        // Buscamos el registro exacto en el carrito
+        $item = $carritoModel->find($id);
+        
+        if ($item) {
+            $nuevaCantidad = $item['cantidad'];
+            
+            if ($accion == 'plus') {
+                $nuevaCantidad++;
+            } elseif ($accion == 'minus') {
+                if ($nuevaCantidad > 1) {
+                    $nuevaCantidad--;
+                }
+            }
+            
+            $carritoModel->update($id, ['cantidad' => $nuevaCantidad]);
+            
+            return $this->response->setJSON(['success' => true]);
+        }
+        
+        return $this->response->setJSON(['success' => false, 'message' => 'Error al actualizar']);
+    }
 }
