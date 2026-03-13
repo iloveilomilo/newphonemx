@@ -59,6 +59,18 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Administrador', 'filter
 // =================================================================
 // Rutas para Soporte (Atención al Cliente)
 // =================================================================
+$routes->group('admin', function($routes) {
+    // Tus rutas actuales
+    $routes->get('soporte', 'Administrador\Soporte::index');
+    $routes->get('soporte/mensajes', 'Administrador\Soporte::mensajes');
+    $routes->get('soporte/historial', 'Administrador\Soporte::historial');
+    $routes->get('soporte/responder', 'Administrador\Soporte::responder');
+
+    // ¡Nuevas rutas para que los botones y formularios funcionen!
+    $routes->post('soporte/enviar_mensaje', 'Administrador\Soporte::enviar_mensaje');
+    $routes->post('soporte/actualizar_conversacion', 'Administrador\Soporte::actualizar_conversacion');
+    $routes->get('soporte/cerrar_conversacion/(:num)', 'Administrador\Soporte::cerrar_conversacion/$1');
+});
 $routes->group('soporte', ['namespace' => 'App\Controllers\Soporte', 'filter' => 'soporteAuth'], function($routes) {
     $routes->get('soporte', 'Soporte::index');
     $routes->get('mensajes', 'Soporte::mensajes');

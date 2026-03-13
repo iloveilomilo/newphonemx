@@ -58,6 +58,28 @@
                     </a>
                 <?php endif; ?>
 
+
+    <?php if (session('rol') == 'atencion_cliente' || session('rol') == 'admin' || session('rol') == null): ?>
+        <a href="<?= base_url('admin/soporte') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+            <i class="fas fa-headset me-2"></i>Responder Dudas
+        </a>
+         <!-- <a href="<?= base_url('soporte/alertas') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+            <i class="fas fa-bell me-2"></i>Alertas de Correo
+        </a> -->
+
+        <a href="<?= base_url('admin/soporte/mensajes') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold" style="padding-left: 2.5rem;">
+            <i class="fas fa-envelope me-2"></i>Ver Mensajes
+        </a>
+        
+        <a href="<?= base_url('admin/soporte/historial') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold" style="padding-left: 2.5rem;">
+            <i class="fas fa-history me-2"></i>Ver Historial
+        </a>
+        
+        <a href="<?= base_url('admin/soporte/responder') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold" style="padding-left: 2.5rem;">
+            <i class="fas fa-reply me-2"></i>Responder Mensaje
+        </a>
+    <?php endif; ?>
+    
                 <?php if ($rol == 'atencion_cliente'): ?>
                     <a href="<?= base_url('soporte/soporte') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-headset me-2"></i>Responder Dudas
