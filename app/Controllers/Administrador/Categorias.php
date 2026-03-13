@@ -12,7 +12,7 @@ class Categorias extends BaseController
         $model = new CategoriaModel();
         
         $data = [
-            'categorias' => $model->findAll() // Trae todas las categorías
+            'categorias' => $model->obtenerActivas() 
         ];
 
         return view('Administrador/categorias', $data);
@@ -22,23 +22,25 @@ class Categorias extends BaseController
     {
         $model = new CategoriaModel();
         
-        // Validación simple
         if (!$this->validate(['nombre' => 'required|min_length[3]'])) {
             return redirect()->back()->with('msg', 'El nombre es muy corto.');
         }
 
         $model->save([
-            'nombre' => $this->request->getPost('nombre')
+            'nombre' => $this->request->getPost('nombre'),
+            'activo' => 1  
         ]);
 
-        return redirect()->to('/dashboard/categorias')->with('msg', 'Categoría creada con éxito');
+        return redirect()->to('/admin/categorias')->with('msg', 'Categoría creada con éxito');
     }
 
     public function delete($id)
     {
         $model = new CategoriaModel();
-        $model->delete($id);
         
-        return redirect()->to('/dashboard/categorias')->with('msg', 'Categoría eliminada');
+        // Desactivacion 
+        $model->bajaLogica($id);
+        
+        return redirect()->to('/admin/categorias')->with('msg', 'Categoría desactivada correctamente.');
     }
 }

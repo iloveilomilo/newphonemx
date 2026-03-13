@@ -6,12 +6,19 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 
-$routes->get('/', 'Auth::index');
+// Rutas Públicas y de Autenticación
 
-// Rutas de Login/Logout
+// página de inicio para TODOS
+$routes->get('/', 'Administrador\Dashboard::cliente'); 
+$routes->get('dashboard/cliente', 'Administrador\Dashboard::cliente'); 
+$routes->get('tienda/producto/(:num)', 'Administrador\Dashboard::detalle/$1');
+
+// Rutas de Login y Registro
 $routes->get('/login', 'Auth::index');
 $routes->post('/auth/login', 'Auth::login');
 $routes->get('/logout', 'Auth::logout');
+$routes->get('/registro', 'Auth::registro'); 
+$routes->post('/auth/guardar_registro', 'Auth::guardar_registro'); 
 
 // =================================================================
 // Rutas para Administración
@@ -29,11 +36,24 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Administrador', 'filter
     $routes->get('filtros', 'Filtros::index');
     $routes->post('filtros/guardar', 'Filtros::store');
     $routes->get('filtros/eliminar/(:num)', 'Filtros::delete/$1');
+
+    // Usuarios
+    $routes->get('usuarios', 'Usuarios::index');
+    $routes->post('usuarios/guardar', 'Usuarios::store');
+    $routes->get('usuarios/eliminar/(:num)', 'Usuarios::delete/$1');
+    $routes->get('usuarios/reactivar/(:num)', 'Usuarios::reactivar/$1');
     
     // Productos
     $routes->get('productos', 'Productos::index');
     $routes->get('productos/crear', 'Productos::create');
     $routes->post('productos/guardar', 'Productos::store');
+    
+    // Edición de Productos
+    $routes->get('productos/editar/(:num)', 'Productos::edit/$1');
+    $routes->post('productos/actualizar/(:num)', 'Productos::actualizar/$1');
+
+    // Eliminación/Baja de Productos
+    $routes->get('productos/eliminar/(:num)', 'Productos::delete/$1');
 });
 
 // =================================================================
@@ -51,15 +71,25 @@ $routes->group('admin', function($routes) {
     $routes->post('soporte/actualizar_conversacion', 'Administrador\Soporte::actualizar_conversacion');
     $routes->get('soporte/cerrar_conversacion/(:num)', 'Administrador\Soporte::cerrar_conversacion/$1');
 });
+$routes->group('soporte', ['namespace' => 'App\Controllers\Soporte', 'filter' => 'soporteAuth'], function($routes) {
+    $routes->get('soporte', 'Soporte::index');
+    $routes->get('mensajes', 'Soporte::mensajes');
+    $routes->get('historial', 'Soporte::historial');
+    $routes->get('responder', 'Soporte::responder');
+});
 
 
 // =================================================================
 // Rutas para Clientes
 // =================================================================
-$routes->get('dashboard/cliente', 'Administrador\Dashboard::cliente');
-$routes->get('tienda/producto/(:num)', 'Administrador\Dashboard::detalle/$1');
 
+
+// Rutas para el Carrito de Compras
+$routes->get('carrito', 'cliente\Carrito::index', ['filter' => 'clienteAuth']);
+$routes->post('carrito/agregar', 'cliente\Carrito::agregar', ['filter' => 'clienteAuth']);
+$routes->get('carrito/eliminar/(:segment)', 'cliente\Carrito::eliminar/$1', ['filter' => 'clienteAuth']);
+$routes->post('soporte/enviar_duda', 'cliente\SoporteCliente::enviar_duda', ['filter' => 'clienteAuth']);
+
+// Grupo para futuras rutas exclusivas
 $routes->group('cliente', ['namespace' => 'App\Controllers\Cliente', 'filter' => 'clienteAuth'], function($routes) {
-    // Aquí tu otro compañero pondrá sus rutas, ej:
-    // $routes->get('mi-cuenta', 'Perfil::index');
 });

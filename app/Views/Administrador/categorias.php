@@ -30,7 +30,7 @@
                             <td><?= $cat['id'] ?></td>
                             <td><?= $cat['nombre'] ?></td>
                             <td class="text-end">
-                                <a href="<?= base_url('dashboard/categorias/eliminar/'.$cat['id']) ?>" 
+                                <a href="<?= base_url('admin/categorias/eliminar/'.$cat['id']) ?>" 
                                    class="btn btn-sm btn-outline-danger"
                                    onclick="return confirm('¿Seguro que deseas eliminar esta categoría?');">
                                     <i class="fas fa-trash"></i>
@@ -55,7 +55,7 @@
         <h5 class="modal-title">Nueva Categoría</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="<?= base_url('dashboard/categorias/guardar') ?>" method="post">
+      <form action="<?= base_url('admin/categorias/guardar') ?>" method="post">
           <div class="modal-body">
             <div class="mb-3">
                 <label for="nombre" class="form-label">Nombre de la Categoría</label>

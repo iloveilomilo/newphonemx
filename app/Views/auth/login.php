@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #9aaaf1 0%, #ece0f8 100%);
             height: 100vh;
             display: flex;
             align-items: center;
@@ -53,6 +53,10 @@
             </div>
             <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-primary py-2">Iniciar Sesión</button>
+            </div>
+            <div class="text-center mt-4">
+                <p class="text-muted mb-1">¿No tienes cuenta?</p>
+                <a href="<?= base_url('registro') ?>" class="btn btn-outline-secondary w-100">Crear cuenta nueva</a>
             </div>
         </form>
     </div>
