@@ -35,6 +35,10 @@
                     <a href="<?= base_url('dashboard/mis-compras') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-receipt me-2"></i>Mis Compras
                     </a>
+                    
+                    <a href="<?= base_url('mis-preguntas') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-question-circle me-2"></i>Mis Preguntas
+                    </a>
                 <?php endif; ?>
 
                 <?php if ($rol == 'admin'): ?>
