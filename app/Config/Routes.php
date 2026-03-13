@@ -54,6 +54,11 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Administrador', 'filter
 
     // Eliminación/Baja de Productos
     $routes->get('productos/eliminar/(:num)', 'Productos::delete/$1');
+
+    // Soporte Interno (Chat entre Administrador y Atencion al Cliente)
+    $routes->get('soporte', 'SoporteAdmin::index');
+    $routes->get('soporte/chat/(:num)', 'SoporteAdmin::ver_chat/$1');
+    $routes->post('soporte/responder', 'SoporteAdmin::responder');
 });
 
 // =================================================================
