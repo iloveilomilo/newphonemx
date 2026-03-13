@@ -123,8 +123,11 @@ public function exito()
     $usuario_id = session('id');
     $direccion_id = session('direccion_envio_id');
     
-    // Capturamos el ID real que manda Mercado Pago por la URL
-    $payment_id = $this->request->getGet('payment_id') ?? $this->request->getGet('preference_id') ?? 'Confirmando...'; 
+
+    $payment_id = $this->request->getGet('payment_id') 
+                  ?? $this->request->getGet('preference_id') 
+                  ?? $this->request->getGet('collection_id')
+                  ?? 'MP-' . strtoupper(substr(md5(time()), 0, 10)); 
 
     if (!$direccion_id) {
         return redirect()->to(base_url('carrito'));
