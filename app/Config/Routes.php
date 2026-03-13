@@ -69,6 +69,7 @@ $routes->group('soporte', ['namespace' => 'App\Controllers\Soporte', 'filter' =>
 $routes->get('carrito', 'cliente\Carrito::index', ['filter' => 'clienteAuth']);
 $routes->post('carrito/agregar', 'cliente\Carrito::agregar', ['filter' => 'clienteAuth']);
 $routes->get('carrito/eliminar/(:segment)', 'cliente\Carrito::eliminar/$1', ['filter' => 'clienteAuth']);
+$routes->post('carrito/actualizar', 'cliente\Carrito::actualizar', ['filter' => 'clienteAuth']); 
 $routes->post('soporte/enviar_duda', 'cliente\SoporteCliente::enviar_duda', ['filter' => 'clienteAuth']);
 
 // Historial de preguntas del cliente
@@ -76,6 +77,19 @@ $routes->get('mis-preguntas', 'cliente\SoporteCliente::mis_preguntas', ['filter'
 // Rutas para el chat individual
 $routes->get('mis-preguntas/chat/(:num)', 'cliente\SoporteCliente::ver_chat/$1', ['filter' => 'clienteAuth']);
 $routes->post('mis-preguntas/responder', 'cliente\SoporteCliente::responder_chat', ['filter' => 'clienteAuth']);
+
+// Rutas para Mi Perfil y Direcciones
+$routes->get('perfil', 'cliente\Perfil::index', ['filter' => 'clienteAuth']);
+$routes->post('perfil/actualizar_datos', 'cliente\Perfil::actualizar_datos', ['filter' => 'clienteAuth']);
+$routes->post('perfil/guardar_direccion', 'cliente\Perfil::guardar_direccion', ['filter' => 'clienteAuth']);
+$routes->get('perfil/eliminar_direccion/(:num)', 'cliente\Perfil::eliminar_direccion/$1', ['filter' => 'clienteAuth']);
+
+// Rutas para Pagos y Checkout
+$routes->get('checkout', 'cliente\Checkout::index', ['filter' => 'clienteAuth']);
+$routes->post('checkout/procesar', 'cliente\Checkout::procesar', ['filter' => 'clienteAuth']);
+$routes->get('checkout/exito', 'cliente\Checkout::exito', ['filter' => 'clienteAuth']);
+//mis compras
+$routes->get('mis-compras', 'cliente\Compras::index', ['filter' => 'clienteAuth']);
 
 // Grupo para futuras rutas exclusivas
 $routes->group('cliente', ['namespace' => 'App\Controllers\Cliente', 'filter' => 'clienteAuth'], function($routes) {

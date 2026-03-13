@@ -45,7 +45,13 @@
                                                 </div>
                                             </td>
                                             <td class="text-center text-muted">$<?= number_format($item['precio'], 2) ?></td>
-                                            <td class="text-center fw-bold"><?= $item['cantidad'] ?></td>
+                                            <td class="text-center">
+                                                <div class="input-group input-group-sm mx-auto" style="width: 100px;">
+                                                    <button class="btn btn-outline-secondary btn-update-cart" data-id="<?= $item['id'] ?>" data-action="minus" type="button"><i class="fas fa-minus"></i></button>
+                                                    <input type="text" class="form-control text-center fw-bold px-0 bg-white" value="<?= $item['cantidad'] ?>" readonly>
+                                                    <button class="btn btn-outline-secondary btn-update-cart" data-id="<?= $item['id'] ?>" data-action="plus" type="button"><i class="fas fa-plus"></i></button>
+                                                </div>
+                                            </td>
                                             <td class="text-end fw-bold text-primary pe-4">$<?= number_format($item['precio'] * $item['cantidad'], 2) ?></td>
                                             <td class="text-center">
                                                 <a href="<?= base_url('carrito/eliminar/' . $item['id']) ?>" class="btn btn-danger btn-sm rounded-circle" title="Eliminar artículo">
@@ -83,9 +89,9 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button class="btn btn-success btn-lg fw-bold">
+                            <a href="<?= base_url('checkout') ?>" class="btn btn-success btn-lg fw-bold w-100">
                                 <i class="fas fa-credit-card me-2"></i> Proceder al Pago
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -93,5 +99,35 @@
         <?php endif; ?>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnsUpdate = document.querySelectorAll('.btn-update-cart');
+    
+    btnsUpdate.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const action = this.getAttribute('data-action');
+            
+            const formData = new FormData();
+            formData.append('id', id);
+            formData.append('accion', action);
 
+            fetch('<?= base_url('carrito/actualizar') ?>', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    location.reload(); 
+                } else {
+                    Swal.fire('Atención', data.message || 'No se pudo actualizar.', 'warning');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+});
+</script>
 <?= $this->endSection() ?>
