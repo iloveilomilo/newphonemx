@@ -10,9 +10,29 @@ class Soporte extends BaseController
     // 1. FUNCIONES PARA MOSTRAR LAS VISTAS
     // ==========================================
     
-    public function index()
+ public function index()
     {
+        $db = \Config\Database::connect();
+        
+        // Agregamos el conteo de "espera_cliente"
+        $data['totales'] = [
+            'nuevos'         => $db->table('salas_chat')->where('estado', 'nuevo')->countAllResults(),
+            'en_proceso'     => $db->table('salas_chat')->where('estado', 'en_proceso')->countAllResults(),
+            'espera_cliente' => $db->table('salas_chat')->where('estado', 'espera_cliente')->countAllResults(),
+            'resueltos'      => $db->table('salas_chat')->where('estado', 'cerrado')->countAllResults()
+        ];
+        
+        $builder = $db->table('salas_chat');
+        $builder->select('salas_chat.id, salas_chat.asunto, salas_chat.estado, salas_chat.fecha_inicio, usuarios.nombre, usuarios.apellidos');
+        $builder->join('usuarios', 'usuarios.id = salas_chat.cliente_id', 'left');
+        $builder->where('salas_chat.estado !=', 'cerrado');
+        $builder->orderBy('salas_chat.fecha_inicio', 'DESC');
+        $builder->limit(5); 
+        
+        $data['ultimos_tickets'] = $builder->get()->getResultArray();
+
         $data['rol'] = session()->get('rol') ?? 'atencion_cliente'; 
+        
         return view('AtencionCliente/index', $data);
     }
 
@@ -39,41 +59,66 @@ class Soporte extends BaseController
 
     public function historial()
     {
-        $data['rol'] = session()->get('rol') ?? 'atencion_cliente';
+        $db = \Config\Database::connect();
+        
+        // Traemos SOLO las conversaciones que ya están cerradas
+        $builder = $db->table('salas_chat');
+        $builder->select('salas_chat.*, usuarios.nombre, usuarios.apellidos');
+        $builder->join('usuarios', 'usuarios.id = salas_chat.cliente_id', 'left');
+        $builder->where('salas_chat.estado', 'cerrado');
+        $builder->orderBy('salas_chat.fecha_cierre', 'DESC'); 
+        
+        $historial = $builder->get()->getResultArray();
+
+        // AQUÍ METEMOS EL HISTORIAL Y TU ROL EN EL MISMO PAQUETE
+        $data = [
+            'historial' => $historial,
+            'rol'       => session()->get('rol') ?? 'atencion_cliente'
+        ];
+
         return view('AtencionCliente/historial', $data);
     }
 
-    public function responder($id_conversacion = 1)
+    public function responder($id_conversacion = null)
     {
         $db = \Config\Database::connect();
-        
-        $builder = $db->table('salas_chat');
-        $builder->select('salas_chat.*, usuarios.nombre, usuarios.apellidos');
-        $builder->join('usuarios', 'usuarios.id = salas_chat.cliente_id');
-        $builder->where('salas_chat.id', $id_conversacion);
-        
-        $conversacion = $builder->get()->getRowArray();
 
-        // Si la base de datos no encuentra la conversación, creamos una falsa
-        // para que la vista siempre funcione y no te marque error 404 ni pantallazo.
+        // 1. Obtenemos TODOS los tickets activos para la barra lateral (como el diseño de tu compañero)
+        $conversaciones = $db->table('salas_chat')
+            ->select('salas_chat.id, salas_chat.fecha_inicio, usuarios.nombre, usuarios.apellidos')
+            ->join('usuarios', 'usuarios.id = salas_chat.cliente_id', 'left')
+            ->where('salas_chat.estado !=', 'cerrado')
+            ->orderBy('salas_chat.fecha_inicio', 'DESC')
+            ->get()->getResultArray();
+
+        // Si entramos sin número, abrimos el primer ticket automáticamente
+        if (!$id_conversacion && !empty($conversaciones)) {
+            $id_conversacion = $conversaciones[0]['id'];
+        }
+
+        // 2. Obtenemos los detalles específicos del ticket seleccionado
+        $conversacion = $db->table('salas_chat')
+            ->select('salas_chat.*, usuarios.nombre, usuarios.apellidos')
+            ->join('usuarios', 'usuarios.id = salas_chat.cliente_id', 'left')
+            ->where('salas_chat.id', $id_conversacion)
+            ->get()->getRowArray();
+
+        // Por si no encuentra nada
         if (!$conversacion) {
             $conversacion = [
-                'id' => 1,
-                'nombre' => 'Juan',
-                'apellidos' => 'Pérez (Prueba)',
-                'estado' => 'en_proceso',
-                'fecha_seguimiento' => ''
+                'id' => 1, 'nombre' => 'Juan', 'apellidos' => 'Pérez (Prueba)',
+                'estado' => 'en_proceso', 'fecha_seguimiento' => ''
             ];
         }
 
         $data = [
-            'conversacion' => $conversacion,
-            'rol'          => session()->get('rol') ?? 'atencion_cliente'
+            'conversaciones' => $conversaciones, // Mandamos la lista
+            'conversacion'   => $conversacion,   // Mandamos el chat activo
+            'rol'            => session()->get('rol') ?? 'atencion_cliente'
         ];
 
         return view('AtencionCliente/responder', $data);
     }
-
     // ==========================================
     // 2. FUNCIONES PARA PROCESAR LOS DATOS (NUEVAS)
     // ==========================================
@@ -84,33 +129,74 @@ class Soporte extends BaseController
         $id_conversacion = $this->request->getPost('id_conversacion');
         $mensaje = $this->request->getPost('mensaje');
 
+        // Si el mensaje no está vacío, lo guardamos en la base de datos
         if (!empty($mensaje)) {
-            // Aquí irá la lógica de inserción a la BD
+            $db = \Config\Database::connect();
+            
+            // Guardamos el mensaje en la tabla mensajes_chat.
+            // Si por algo tu sesión caducó, forzamos el ID 3 (que es tu usuario Paola).
+            $db->table('mensajes_chat')->insert([
+                'sala_chat_id' => $id_conversacion,
+                'remitente_id' => session()->get('id') ?? 3, 
+                'mensaje'      => $mensaje,
+                'fecha_envio'  => date('Y-m-d H:i:s')
+            ]);
         }
 
-        // Recarga la página del chat
-        return redirect()->to(base_url('admin/soporte/responder/' . $id_conversacion))->with('msg', 'Mensaje enviado correctamente');
+        // Al terminar de guardar, recargamos la página en el mismo chat
+        return redirect()->to(base_url('admin/soporte/responder/' . $id_conversacion));
     }
 
     // Función para guardar los cambios del panel lateral
     public function actualizar_conversacion()
     {
         $id_conversacion = $this->request->getPost('id_conversacion');
-        $estado = $this->request->getPost('estado');
+        $estado = $this->request->getPost('estado'); // Aquí atrapamos si elegiste 'cerrado'
         $fecha_seguimiento = $this->request->getPost('fecha_seguimiento');
 
-        // Aquí irá la lógica de actualización a la BD
+        $db = \Config\Database::connect();
+        
+        $datos = [
+            'estado'              => $estado,
+            'fecha_cambio_estado' => date('Y-m-d H:i:s')
+        ];
 
+        // Si elegiste "Finalizar" (cerrado) en el combo, le ponemos su fecha de cierre
+        if ($estado == 'cerrado') {
+            $datos['fecha_cierre'] = date('Y-m-d H:i:s');
+        }
+
+        if (!empty($fecha_seguimiento)) {
+            $datos['fecha_seguimiento'] = $fecha_seguimiento;
+        } else {
+            $datos['fecha_seguimiento'] = null;
+        }
+
+        // Actualizamos en la base de datos
+        $db->table('salas_chat')->where('id', $id_conversacion)->update($datos);
+
+        // ¡EL TRUCO! Si lo pasaste a "Finalizar", te manda directo al historial
+        if ($estado == 'cerrado') {
+            return redirect()->to(base_url('admin/soporte/historial'))->with('msg', 'Conversación finalizada y archivada');
+        }
+
+        // Si solo lo pusiste en "En Proceso", se queda en el chat
         return redirect()->to(base_url('admin/soporte/responder/' . $id_conversacion))->with('msg', 'Gestión actualizada');
     }
 
-    // Función para el botón rojo de "Finalizar Conversación"
-    public function cerrar_conversacion($id_conversacion)
+    // Función para el botón gris de "Archivar"
+    public function archivar_conversacion($id_conversacion)
     {
-        // Aquí irá la lógica para cerrar en la BD
+        $db = \Config\Database::connect();
+        
+        // Cambiamos el estado a 'cerrado' y registramos la fecha exacta
+        $db->table('salas_chat')->where('id', $id_conversacion)->update([
+            'estado'       => 'cerrado',
+            'fecha_cierre' => date('Y-m-d H:i:s')
+        ]);
 
-        // Al cerrar, te manda al historial directamente
-        return redirect()->to(base_url('admin/soporte/historial'))->with('msg', 'Conversación finalizada y archivada');
+        // Al archivar, te manda a tu bandeja de Archivados (historial)
+        return redirect()->to(base_url('admin/soporte/historial'))->with('msg', 'Ticket archivado exitosamente');
     }
 
     // ==========================================
@@ -129,5 +215,20 @@ class Soporte extends BaseController
         $mensajes = $builder->get()->getResultArray();
 
         return $this->response->setJSON(['mensajes' => $mensajes]);
+    }
+    // Función para Retomar/Reabrir un ticket cerrado
+    public function reabrir_conversacion($id_conversacion)
+    {
+        $db = \Config\Database::connect();
+        
+        // Lo regresamos a "En proceso" y le quitamos la fecha de cierre
+        $db->table('salas_chat')->where('id', $id_conversacion)->update([
+            'estado'              => 'en_proceso',
+            'fecha_cierre'        => null,
+            'fecha_cambio_estado' => date('Y-m-d H:i:s')
+        ]);
+
+        // Recargamos el chat para que ya puedas escribir
+        return redirect()->to(base_url('admin/soporte/responder/' . $id_conversacion))->with('msg', 'Ticket reabierto correctamente');
     }
 }
