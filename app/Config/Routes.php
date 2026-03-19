@@ -114,6 +114,10 @@ $routes->get('perfil/eliminar_direccion/(:num)', 'cliente\Perfil::eliminar_direc
 
 //Envio de correo login
 $routes->get('auth/validar_token/(:any)', 'Auth::validar_token/$1');
+$routes->post('auth/pre_registro', 'Auth::pre_registro');
+$routes->post('auth/verificar_codigo', 'Auth::verificar_codigo');
+$routes->post('auth/solicitar_recuperacion', 'Auth::solicitar_recuperacion');
+$routes->post('auth/restablecer_password', 'Auth::restablecer_password');
 
 // Rutas para Pagos y Checkout
 $routes->get('checkout', 'cliente\Checkout::index', ['filter' => 'clienteAuth']);
