@@ -144,23 +144,33 @@
                     <?php endif; ?>
 
                     <?php if ($rol == 'admin'): ?>
-                        <a href="<?= base_url('admin/panel') ?>" class="list-group-item list-group-item-action fw-bold">
+
+
+                        <a href="<?= base_url('admin/panel') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                         </a>
-                        <a href="<?= base_url('admin/productos') ?>" class="list-group-item list-group-item-action fw-bold">
+
+                        <a href="<?= base_url('admin/productos') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                             <i class="fas fa-boxes me-2"></i>Inventario
                         </a>
-                        <a href="<?= base_url('admin/usuarios') ?>" class="list-group-item list-group-item-action fw-bold">
+
+                        <a href="<?= base_url('admin/usuarios') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                             <i class="fas fa-users me-2"></i>Usuarios
                         </a>
+
                         <a href="<?= base_url('admin/categorias') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                             <i class="fas fa-tags me-2"></i>Categorías
                         </a>
+
                         <a href="<?= base_url('admin/filtros') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                             <i class="fas fa-filter me-2"></i>Filtros Globales
                         </a>
-                        <div class="mt-3 ps-3 small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Soporte</div>
-                        <a href="<?= base_url('admin/soporte') ?>" class="list-group-item list-group-item-action fw-bold">
+
+                        <div class="list-group-item bg-transparent text-muted fw-bold text-uppercase mt-3 border-0" style="font-size: 0.70rem; letter-spacing: 0.05rem;">
+                            Soporte
+                        </div>
+
+                        <a href="<?= base_url('admin/soporte') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                             <i class="fas fa-envelope me-2"></i>Ver Mensajes
                         </a>
                     <?php endif; ?>
@@ -188,6 +198,28 @@
                             <i class="fas fa-headset me-2"></i>Responder Dudas
                         </a>
                     <?php endif; ?>
+                <?php if (session('rol') == 'atencion_cliente' || session('rol') == null): ?>
+                    <a href="<?= base_url('admin/soporte') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-headset me-2"></i>Responder Dudas
+                    </a>
+                    <a href="<?= base_url('admin/soporte/mensajes') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold" style="padding-left: 2.5rem;">
+                        <i class="fas fa-envelope me-2"></i>Ver Mensajes
+                    </a>
+                    
+                    <a href="<?= base_url('admin/soporte/historial') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold" style="padding-left: 2.5rem;">
+                        <i class="fas fa-history me-2"></i>Ver Historial
+                    </a>
+                    
+                    <a href="<?= base_url('admin/soporte/responder') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold" style="padding-left: 2.5rem;">
+                        <i class="fas fa-reply me-2"></i>Responder Mensaje
+                    </a>
+                <?php endif; ?>
+                
+                <?php if ($rol == 'atencion_cliente'): ?>
+                    <a href="<?= base_url('soporte/soporte') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-headset me-2"></i>Responder Dudas
+                    </a>
+                <?php endif; ?>
                     <?php if (in_array($rol, ['atencion_cliente', 'admin'])): ?>
 
                     <?php endif; ?>
@@ -197,10 +229,6 @@
                         <a href="<?= base_url('admin/soporte') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                             <i class="fas fa-headset me-2"></i>Responder Dudas
                         </a>
-                        <!-- <a href="<?= base_url('soporte/alertas') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
-            <i class="fas fa-bell me-2"></i>Alertas de Correo
-        </a> -->
-
                         <a href="<?= base_url('admin/soporte/mensajes') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold" style="padding-left: 2.5rem;">
                             <i class="fas fa-envelope me-2"></i>Ver Mensajes
                         </a>
