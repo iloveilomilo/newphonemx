@@ -185,12 +185,28 @@ public function exito()
     $db->table('carrito')->where('usuario_id', $usuario_id)->delete();
     session()->remove('direccion_envio_id');
 
-    //DISEÑO DE CORREO 
-    $email = \Config\Services::email();
-    $email->setFrom('cortes17042003@gmail.com', 'NewPhoneMX Store');
-    $email->setTo($usuario['correo']);
-    $email->setSubject('✅ Confirmación de Compra #' . $pedido_id . ' - NewPhoneMX');
+    // CONFIGURACIÓN CORREGIDA DE CORREO
+    $config = [
+        'protocol'   => getenv('email.protocol'),
+        'SMTPHost'   => getenv('email.SMTPHost'),
+        'SMTPUser'   => getenv('email.SMTPUser'),
+        'SMTPPass'   => getenv('email.SMTPPass'),
+        'SMTPPort'   => (int) getenv('email.SMTPPort'), 
+        'SMTPCrypto' => getenv('email.SMTPCrypto'),
+        'mailType'   => getenv('email.mailType'),
+        'charset'    => getenv('email.charset'),
+        'CRLF'       => "\r\n", 
+        'newline'    => "\r\n"
+    ];
 
+    $email = \Config\Services::email();
+    $email->initialize($config); 
+    
+    //DISEÑO DE CORREO 
+    $email->setFrom(getenv('email.SMTPUser'), 'NewPhoneMX Store');
+    $email->setTo($usuario['correo']); 
+    $email->setBCC('cortesrodriguezjuancarlos1@gmail.com'); 
+    $email->setSubject('✅ Confirmación de Compra #' . $pedido_id . ' - NewPhoneMX');
     $mensajeCorreo = "
     <div style='background-color: #f4f7f6; padding: 30px; font-family: Segoe UI, sans-serif;'>
         <div style='max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);'>

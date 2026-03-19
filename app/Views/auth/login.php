@@ -57,6 +57,12 @@
             <p class="text-secondary">Bienvenido de nuevo</p>
         </div>
         
+        <?php if(session()->getFlashdata('success')):?>
+            <div class="alert alert-success text-center rounded-3">
+                <?= session()->getFlashdata('success') ?>
+            </div>
+        <?php endif;?>
+
         <?php if(session()->getFlashdata('msg')):?>
             <div class="alert alert-danger text-center rounded-3">
                 <?= session()->getFlashdata('msg') ?>

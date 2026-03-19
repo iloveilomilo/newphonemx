@@ -112,10 +112,14 @@ $routes->post('perfil/actualizar_datos', 'cliente\Perfil::actualizar_datos', ['f
 $routes->post('perfil/guardar_direccion', 'cliente\Perfil::guardar_direccion', ['filter' => 'clienteAuth']);
 $routes->get('perfil/eliminar_direccion/(:num)', 'cliente\Perfil::eliminar_direccion/$1', ['filter' => 'clienteAuth']);
 
+//Envio de correo login
+$routes->get('auth/validar_token/(:any)', 'Auth::validar_token/$1');
+
 // Rutas para Pagos y Checkout
 $routes->get('checkout', 'cliente\Checkout::index', ['filter' => 'clienteAuth']);
 $routes->post('checkout/procesar', 'cliente\Checkout::procesar', ['filter' => 'clienteAuth']);
 $routes->get('checkout/exito', 'cliente\Checkout::exito', ['filter' => 'clienteAuth']);
+
 //mis compras
 $routes->get('mis-compras', 'cliente\Compras::index', ['filter' => 'clienteAuth']);
 
