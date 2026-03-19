@@ -313,13 +313,13 @@
 
             <div class="container-fluid px-4 py-4">
 
-                <?php if (session()->getFlashdata('msg')): ?>
-                    <div class="alert alert-danger alert-dismissible fade show fw-bold text-center shadow-sm mb-4" role="alert">
-                        <i class="fas fa-user-secret me-2 fs-4 align-middle"></i>
-                        <?= session()->getFlashdata('msg') ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                <?php endif; ?>
+                <?php if(session()->getFlashdata('alerta_intruso')): ?>
+    <div class="alert alert-danger alert-dismissible fade show fw-bold text-center shadow-sm mb-4" role="alert">
+        <i class="fas fa-user-secret me-2 fs-4 align-middle"></i>
+        <?= session()->getFlashdata('alerta_intruso') ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
                 <?= $this->renderSection('contenido') ?>
             </div>
 
