@@ -85,6 +85,9 @@
             min-width: 0;
             flex: 1; 
             overflow-x: hidden; 
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         .logout-item {
@@ -158,6 +161,24 @@
                     </a>
                 <?php endif; ?>
 
+
+                <?php if (session('rol') == 'atencion_cliente' || session('rol') == 'admin' || session('rol') == null): ?>
+                    <a href="<?= base_url('admin/soporte') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
+                        <i class="fas fa-headset me-2"></i>Responder Dudas
+                    </a>
+                    <a href="<?= base_url('admin/soporte/mensajes') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold" style="padding-left: 2.5rem;">
+                        <i class="fas fa-envelope me-2"></i>Ver Mensajes
+                    </a>
+                    
+                    <a href="<?= base_url('admin/soporte/historial') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold" style="padding-left: 2.5rem;">
+                        <i class="fas fa-history me-2"></i>Ver Historial
+                    </a>
+                    
+                    <a href="<?= base_url('admin/soporte/responder') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold" style="padding-left: 2.5rem;">
+                        <i class="fas fa-reply me-2"></i>Responder Mensaje
+                    </a>
+                <?php endif; ?>
+                
                 <?php if ($rol == 'atencion_cliente'): ?>
                     <a href="<?= base_url('soporte/soporte') ?>" class="list-group-item list-group-item-action bg-transparent second-text fw-bold">
                         <i class="fas fa-headset me-2"></i>Responder Dudas
@@ -185,12 +206,19 @@
                     <?php endif; ?>
                 </div>
 
+                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
                         <?php if(session('id')): ?>
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle fw-bold text-dark" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle me-2 text-primary"></i><?= session('nombre') ?>
+                                <a class="nav-link dropdown-toggle fw-bold text-dark d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <?php 
+                                        $foto_nav = session('foto_perfil') ? session('foto_perfil') : 'default.png'; 
+                                    ?>
+                                    <img src="<?= base_url('uploads/perfiles/' . $foto_nav) ?>" alt="Perfil" class="rounded-circle border border-primary shadow-sm me-2" style="width: 35px; height: 35px; object-fit: cover;">
+                                    <?= session('nombre') ?>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="navbarDropdown">
                                     <li><a class="dropdown-item" href="<?= base_url('perfil') ?>"><i class="fas fa-user me-2"></i> Perfil</a></li>
@@ -215,9 +243,25 @@
             </nav>
 
             <div class="container-fluid px-4 py-4">
+                
+                <?php if(session()->getFlashdata('msg')): ?>
+                    <div class="alert alert-danger alert-dismissible fade show fw-bold text-center shadow-sm mb-4" role="alert">
+                        <i class="fas fa-user-secret me-2 fs-4 align-middle"></i>
+                        <?= session()->getFlashdata('msg') ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <?php endif; ?>
                 <?= $this->renderSection('contenido') ?>
             </div>
-        </div>
+
+            <footer class="mt-auto py-3 text-center border-top" style="background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(10px);">
+                <div class="container-fluid">
+                    <span class="text-muted small fw-bold">
+                        &copy; <?= date('Y') ?> NewPhoneMX. Todos los derechos reservados.
+                    </span>
+                </div>
+            </footer>
+            </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

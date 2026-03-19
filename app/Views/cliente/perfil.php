@@ -36,9 +36,23 @@
             <div class="tab-content" id="perfilTabsContent">
                 
                 <div class="tab-pane fade show active" id="datos" role="tabpanel">
-                    <form action="<?= base_url('perfil/actualizar_datos') ?>" method="post">
+                    <form action="<?= base_url('perfil/actualizar_datos') ?>" method="post" enctype="multipart/form-data">
                         <div class="row">
-                            <div class="col-md-8">
+                            
+                            <div class="col-md-4 text-center mb-4 d-flex flex-column align-items-center justify-content-center border-end">
+                                <h5 class="fw-bold mb-3">Foto de Perfil</h5>
+                                <?php 
+                                    $foto = !empty($usuario['foto_perfil']) ? $usuario['foto_perfil'] : 'default.png'; 
+                                ?>
+                                    <img src="<?= base_url('uploads/perfiles/' . $foto) ?>" id="preview_foto" alt="Foto de perfil" class="rounded-circle mb-3 shadow-sm border border-3 border-white" style="width: 150px; height: 150px; object-fit: cover;">                                
+                                <label class="btn btn-outline-primary btn-sm rounded-pill px-3 cursor-pointer">
+                                    <i class="fas fa-camera me-1"></i> Cambiar Foto
+                                    <input type="file" name="foto_perfil" id="input_foto" accept="image/jpeg, image/png" class="d-none">
+                                </label>
+                                <small class="text-muted mt-2" style="font-size: 0.75rem;">Formatos aceptados: JPG, PNG.</small>
+                            </div>
+
+                            <div class="col-md-8 px-4">
                                 <h5 class="fw-bold mb-4">Información de la Cuenta</h5>
                                 <div class="row g-3">
                                     <div class="col-md-6">
@@ -174,4 +188,20 @@
     </div>
 </div>
 
+<script>
+    const inputFoto = document.getElementById('input_foto');
+    const previewFoto = document.getElementById('preview_foto');
+
+    if(inputFoto) {
+        inputFoto.addEventListener('change', function(event) {
+            const archivo = event.target.files[0]; 
+            
+            if (archivo) {
+                const urlTemporal = URL.createObjectURL(archivo);
+                
+                previewFoto.src = urlTemporal;
+            }
+        });
+    }
+</script>
 <?= $this->endSection() ?>

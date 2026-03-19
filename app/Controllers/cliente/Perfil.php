@@ -29,11 +29,24 @@ class Perfil extends BaseController
             'telefono'  => $this->request->getPost('telefono')
         ];
 
+        // LÓGICA PARA LA FOTO DE PERFIL 
+        $foto = $this->request->getFile('foto_perfil');
+
+        if ($foto && $foto->isValid() && !$foto->hasMoved()) {
+            
+            $nombreFoto = $foto->getRandomName();
+            
+            $foto->move(FCPATH . 'uploads/perfiles', $nombreFoto);
+            $data['foto_perfil'] = $nombreFoto;
+            
+            session()->set('foto_perfil', $nombreFoto);
+        }
+
         $db->table('usuarios')->where('id', $usuario_id)->update($data);
         
         session()->set('nombre', $data['nombre']);
 
-        return redirect()->to(base_url('perfil'))->with('mensaje', 'Tus datos personales fueron actualizados.');
+        return redirect()->to(base_url('perfil'))->with('mensaje', 'Tus datos personales y foto fueron actualizados.');
     }
 
     // ACTUALIZADA
