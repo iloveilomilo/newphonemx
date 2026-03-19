@@ -54,6 +54,8 @@ class SoporteAdmin extends BaseController
             'fecha_envio'  => date('Y-m-d H:i:s')
         ]);
 
+        $chatModel->update($sala_id, ['estado' => 'en_proceso']);
+
         return redirect()->to('/admin/soporte/chat/' . $sala_id);
     }
 }
