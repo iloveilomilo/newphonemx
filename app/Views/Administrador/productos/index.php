@@ -9,9 +9,9 @@
     </a>
 </div>
 
-<?php if(session()->getFlashdata('msg')):?>
+<?php if (session()->getFlashdata('msg')): ?>
     <div class="alert alert-success"><?= session()->getFlashdata('msg') ?></div>
-<?php endif;?>
+<?php endif; ?>
 
 <div class="card shadow-sm">
     <div class="card-body">
@@ -28,30 +28,30 @@
                 </tr>
             </thead>
             <tbody>
-                <?php foreach($productos as $prod): ?>
+                <?php foreach ($productos as $prod): ?>
                     <tr>
                         <td>
-                            <img src="<?= base_url('uploads/productos/'.$prod['imagen_principal']) ?>" 
-                                 alt="img" width="50" class="rounded">
+                            <img src="<?= base_url('uploads/productos/' . $prod['imagen_principal']) ?>"
+                                alt="img" width="50" class="rounded">
                         </td>
                         <td>
                             <strong><?= $prod['nombre'] ?></strong><br>
                             <small class="text-muted">SKU: <?= $prod['sku'] ?? 'N/A' ?></small>
                         </td>
                         <td>
-                            <?php if($prod['condicion'] == 'nuevo'): ?>
+                            <?php if ($prod['condicion'] == 'nuevo'): ?>
                                 <span class="badge bg-success">Nuevo</span>
                             <?php else: ?>
                                 <span class="badge bg-warning text-dark">Reacondicionado</span>
                             <?php endif; ?>
                         </td>
-                        
+
                         <td>
-                            <?php if(isset($prod['descuento']) && $prod['descuento'] > 0): ?>
-                                <?php 
-                                    // Matemáticas: Precio - (Precio * (Descuento / 100))
-                                    $descuentoDecimal = $prod['descuento'] / 100;
-                                    $precioFinal = $prod['precio'] - ($prod['precio'] * $descuentoDecimal);
+                            <?php if (isset($prod['descuento']) && $prod['descuento'] > 0): ?>
+                                <?php
+                                // Matemáticas: Precio - (Precio * (Descuento / 100))
+                                $descuentoDecimal = $prod['descuento'] / 100;
+                                $precioFinal = $prod['precio'] - ($prod['precio'] * $descuentoDecimal);
                                 ?>
                                 <span class="text-decoration-line-through text-muted small">$<?= number_format($prod['precio'], 2) ?></span><br>
                                 <strong class="text-success">$<?= number_format($precioFinal, 2) ?></strong>
@@ -61,7 +61,7 @@
                         </td>
 
                         <td>
-                            <?php if(isset($prod['descuento']) && $prod['descuento'] > 0): ?>
+                            <?php if (isset($prod['descuento']) && $prod['descuento'] > 0): ?>
                                 <span class="badge bg-danger">-<?= $prod['descuento'] ?>%</span>
                             <?php else: ?>
                                 <span class="text-muted">0%</span>
@@ -69,14 +69,23 @@
                         </td>
 
                         <td>
-                            <?php if($prod['stock'] < 5): ?>
+                            <?php if ($prod['stock'] < 5): ?>
                                 <span class="text-danger fw-bold"><?= $prod['stock'] ?> (Bajo)</span>
                             <?php else: ?>
                                 <?= $prod['stock'] ?>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
+                            <a href="<?= base_url('admin/productos/editar/' . $prod['id']) ?>" class="btn btn-sm btn-outline-primary" title="Editar Producto">
+                                <i class="fas fa-edit"></i>
+                            </a>
+
+                            <a href="<?= base_url('admin/productos/eliminar/' . $prod['id']) ?>"
+                                class="btn btn-sm btn-outline-danger ms-1"
+                                onclick="return confirm('¿Estás seguro de dar de baja este producto? Ya no aparecerá en la tienda pública.');"
+                                title="Dar de baja">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

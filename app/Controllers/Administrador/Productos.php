@@ -3,6 +3,7 @@
 namespace App\Controllers\Administrador;
 
 use App\Controllers\BaseController;
+use App\Models\ProductoModel;
 
 class Productos extends BaseController
 {
@@ -15,49 +16,51 @@ class Productos extends BaseController
 
     public function index()
     {
-        $productoModel = new \App\Models\ProductoModel();
-
-        $productos = $productoModel->obtenerInventarioCompleto();
-
+        $productoModel = new ProductoModel();
         $data = [
-            'productos' => $productos
+            'productos' => $productoModel->obtenerInventarioCompleto()
         ];
-
         return view('Administrador/productos/index', $data);
     }
 
     public function create()
     {
-        // categorías activas
-        $data['categorias'] = $this->db->table('categorias')
-                                       ->where('activo', 1)
-                                       ->get()
-                                       ->getResultArray();
-        
-        // filtros activos
-        $data['filtros']    = $this->db->table('filtros')
-                                       ->where('activo', 1)
-                                       ->get()
-                                       ->getResultArray();
+        $data['categorias'] = $this->db->table('categorias')->where('activo', 1)->get()->getResultArray();
+        $data['filtros']    = $this->db->table('filtros')->where('activo', 1)->get()->getResultArray();
+        return view('Administrador/productos/crear', $data);
+    }
+
+    // =================================================================
+    // EDITAR PRODUCTO
+    // =================================================================
+    public function edit($id)
+    {
+        $productoModel = new \App\Models\ProductoModel();
+
+        $data['producto'] = $productoModel->obtenerProductoCompletoPorId($id);
+
+        if (!$data['producto']) {
+            return redirect()->to('/admin/productos')->with('msg', 'El producto no existe.');
+        }
+
+        $data['categorias'] = $this->db->table('categorias')->where('activo', 1)->get()->getResultArray();
+        $data['filtros']    = $this->db->table('filtros')->where('activo', 1)->get()->getResultArray();
+        $data['valoresFiltros'] = $this->db->table('valores_filtros')->where('inventario_id', $data['producto']['inventario_id'])->get()->getResultArray();
+        $data['imagenesGaleria'] = $this->db->table('imagenes_producto')->where('producto_id', $id)->get()->getResultArray();
 
         return view('Administrador/productos/crear', $data);
     }
 
     public function store()
     {
-        // Recibir y validar la imagen  
+        // 1. Manejo de la Imagen Principal
         $img = $this->request->getFile('imagen');
-        
         if (!$img->isValid()) {
-            return redirect()->back()->with('msg', 'Debes subir una imagen válida.');
+            return redirect()->back()->with('msg', 'Debes subir una imagen de portada válida.');
         }
 
         $nuevoNombre = $img->getRandomName();
-        try {
-            $img->move(ROOTPATH . 'public/uploads/productos', $nuevoNombre);
-        } catch (\Throwable $e) {
-            return redirect()->back()->with('msg', 'Error al subir la imagen al servidor.');
-        }
+        $img->move(ROOTPATH . 'public/uploads/productos', $nuevoNombre);
 
         try {
             $datosProducto = [
@@ -67,35 +70,123 @@ class Productos extends BaseController
                 'descripcion'      => $this->request->getPost('descripcion'),
                 'imagen_principal' => $nuevoNombre
             ];
-            
-            // Tomamos lo que viene en el formulario
-            $postData = $this->request->getPost();
 
-            $productoModel = new \App\Models\ProductoModel();
+            $postData = $this->request->getPost();
+            $productoModel = new ProductoModel();
             $skuGenerado = $productoModel->guardarProductoCompleto($datosProducto, $postData);
 
-            return redirect()->to('/admin/productos')->with('msg', '¡Éxito! Producto publicado con el código: <strong>' . $skuGenerado . '</strong>');
+            if ($files = $this->request->getFiles()) {
 
+                $productoRecienCreado = $productoModel->orderBy('id', 'DESC')->first();
+                $nuevoProductoID = $productoRecienCreado['id'];
+
+                if (isset($files['galeria'])) {
+                    foreach ($files['galeria'] as $fotoGaleria) {
+                        if ($fotoGaleria->isValid() && !$fotoGaleria->hasMoved()) {
+                            $nombreGaleria = $fotoGaleria->getRandomName();
+                            $fotoGaleria->move(ROOTPATH . 'public/uploads/productos', $nombreGaleria);
+
+                            $this->db->table('imagenes_producto')->insert([
+                                'producto_id' => $nuevoProductoID,
+                                'nombre_archivo' => $nombreGaleria
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            return redirect()->to('/admin/productos')->with('msg', '¡Éxito! Producto y galería publicados. Código: <strong>' . $skuGenerado . '</strong>');
         } catch (\Throwable $e) {
+            // Si algo sale mal se borra la imagen que se subió
             if (file_exists(ROOTPATH . 'public/uploads/productos/' . $nuevoNombre)) {
                 unlink(ROOTPATH . 'public/uploads/productos/' . $nuevoNombre);
             }
+            return redirect()->back()->with('msg', 'Error al guardar. Detalle: ' . $e->getMessage())->withInput();
+        }
+    }
 
-            $mensajeError = 'Ocurrió un error inesperado al guardar el producto.';
-            if (getenv('CI_ENVIRONMENT') === 'development') {
-                $mensajeError .= ' (Detalle: ' . $e->getMessage() . ')';
+    // =================================================================
+    // PROCESAR LA ACTUALIZACIÓN EN BASE DE DATOS
+    // =================================================================
+    public function actualizar($id)
+    {
+        $productoModel = new \App\Models\ProductoModel();
+
+        $productoActual = $productoModel->find($id);
+
+        $postData = $this->request->getPost();
+
+        $datosProducto = [
+            'categoria_id' => $postData['categoria_id'],
+            'nombre'       => $postData['nombre'],
+            'marca'        => $postData['marca'],
+            'descripcion'  => $postData['descripcion']
+        ];
+
+        $img = $this->request->getFile('imagen');
+        if ($img && $img->isValid() && !$img->hasMoved()) {
+            $nuevoNombre = $img->getRandomName();
+            $img->move(ROOTPATH . 'public/uploads/productos', $nuevoNombre);
+            $datosProducto['imagen_principal'] = $nuevoNombre;
+
+            if (!empty($productoActual['imagen_principal'])) {
+                $rutaVieja = ROOTPATH . 'public/uploads/productos/' . $productoActual['imagen_principal'];
+                if (file_exists($rutaVieja)) {
+                    unlink($rutaVieja);
+                }
+            }
+        }
+
+        try {
+            $productoModel->actualizarProductoCompleto($id, $datosProducto, $postData);
+
+            // =========================================================
+            // Se elmiminaron fotos viejas de la galeria?
+            // =========================================================
+            if ($imagenesAEliminar = $this->request->getPost('eliminar_imagenes')) {
+                foreach ($imagenesAEliminar as $img_id) {
+                    $imgData = $this->db->table('imagenes_producto')->where('id', $img_id)->get()->getRow();
+                    if ($imgData) {
+                        // se borra el archivo físico
+                        $rutaFisica = ROOTPATH . 'public/uploads/productos/' . $imgData->nombre_archivo;
+                        if (file_exists($rutaFisica)) {
+                            unlink($rutaFisica);
+                        }
+                        // y se borra de la bd
+                        $this->db->table('imagenes_producto')->where('id', $img_id)->delete();
+                    }
+                }
             }
 
-            return redirect()->back()->with('msg', $mensajeError)->withInput();
+            // =========================================================
+            // Se subieron fotos nuevas a la galeria?
+            // =========================================================
+            if ($files = $this->request->getFiles()) {
+                if (isset($files['galeria'])) {
+                    foreach ($files['galeria'] as $fotoGaleria) {
+                        if ($fotoGaleria->isValid() && !$fotoGaleria->hasMoved()) {
+                            $nombreGaleria = $fotoGaleria->getRandomName();
+                            $fotoGaleria->move(ROOTPATH . 'public/uploads/productos', $nombreGaleria);
+
+                            $this->db->table('imagenes_producto')->insert([
+                                'producto_id' => $id,
+                                'nombre_archivo' => $nombreGaleria
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            return redirect()->to('/admin/productos')->with('msg', '¡Producto actualizado correctamente!');
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('msg', 'Error al actualizar. Detalle: ' . $e->getMessage());
         }
     }
 
     public function delete($id)
-    { 
-        $productoModel = new \App\Models\ProductoModel();
-        
+    {
+        $productoModel = new ProductoModel();
         $productoModel->bajaLogica($id);
-        
-        return redirect()->to('/admin/productos')->with('msg', 'Producto eliminado (enviado a la papelera).');
+        return redirect()->to('/admin/productos')->with('msg', 'Producto Dado de Baja.');
     }
 }

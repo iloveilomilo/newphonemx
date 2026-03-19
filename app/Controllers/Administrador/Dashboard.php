@@ -4,12 +4,27 @@ namespace App\Controllers\Administrador;
 
 use App\Controllers\BaseController;  
 use App\Models\ProductoClienteModel;
+use App\Models\DashboardAdminModel;
 
 class Dashboard extends BaseController
 {
     public function admin()
     {
-        return view('Administrador/admin'); 
+        $dashboardModel = new DashboardAdminModel();
+        $mi_id = session('id');
+        
+        // Empaquetamos toda la analítica
+        $data = [
+            'ingresos'          => $dashboardModel->obtenerIngresosTotales(),
+            'ordenes_pendientes'=> $dashboardModel->obtenerOrdenesPendientes(),
+            'productos_activos' => $dashboardModel->obtenerProductosActivos(),
+            'clientes_total'    => $dashboardModel->obtenerClientesRegistrados(),
+            'ordenes_recientes' => $dashboardModel->obtenerUltimasOrdenes(),
+            'stock_bajo'        => $dashboardModel->obtenerAlertasStockBajo(),
+            'chats_pendientes'  => $dashboardModel->obtenerSoportePendiente($mi_id)
+        ];
+
+        return view('Administrador/admin', $data); 
     }
 
     public function soporte()
