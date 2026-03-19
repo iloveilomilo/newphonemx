@@ -70,7 +70,7 @@ class Checkout extends BaseController
                 "description" => "Celular de Tienda NEWPHONEMX",
                 "quantity"    => (int) $item['cantidad'],
                 "currency_id" => "MXN",
-                "unit_price"  => (float) $precioFinal
+                "unit_price" => (float) number_format($precioFinal, 2, '.', '')
             ];
         }
 
@@ -172,6 +172,11 @@ public function exito()
 
     $detalles = [];
     foreach ($items as $item) {
+        $db = \Config\Database::connect();
+        $db->table('inventario')
+        ->where('id', $item['inventario_id'])
+        ->set('stock', 'stock - ' . $item['cantidad'], false) // El 'false' es vital para que SQL haga la resta
+        ->update();
         $precioFinal = $item['precio'] - ($item['precio'] * ($item['descuento'] / 100));
         $detalles[] = [
             'pedido_id'       => $pedido_id,
