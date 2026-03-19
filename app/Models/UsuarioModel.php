@@ -10,7 +10,7 @@ class UsuarioModel extends Model
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $allowedFields    = ['rol', 'nombre', 'apellidos', 'correo', 'password', 'telefono', 'activo'];
+    protected $allowedFields    = ['rol', 'nombre', 'apellidos', 'correo', 'password', 'telefono', 'activo','intentos_fallidos', 'bloqueado', 'codigo_recuperacion'];
 
     // =================================================================
     // TRAER SOLO LOS USUARIOS ACTIVOS

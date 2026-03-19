@@ -21,6 +21,21 @@ class Perfil extends BaseController
         $db = \Config\Database::connect();
         $usuario_id = session('id');
 
+        // VALIDACIÓN DEL CORREO
+        $reglas = [
+            'correo' => [
+                'rules'  => "required|valid_email|is_unique[usuarios.correo,id,{$usuario_id}]",
+                'errors' => [
+                    'is_unique' => 'El correo electrónico que intentas usar ya está registrado por otra cuenta.'
+                ]
+            ]
+        ];
+
+        if (!$this->validate($reglas)) {
+            return redirect()->back()->with('error', $this->validator->getError('correo'));
+        }
+
+        // SI PASA LA VALIDACIÓN, ACTUALIZAMOS
         $data = [
             'nombre'    => $this->request->getPost('nombre'),
             'apellidos' => $this->request->getPost('apellidos'),

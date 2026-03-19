@@ -20,6 +20,13 @@
         </div>
     <?php endif; ?>
 
+    <?php if(session()->getFlashdata('error')): ?>
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i><?= session()->getFlashdata('error') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
         <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
             <ul class="nav nav-tabs fw-bold" id="perfilTabs" role="tablist">
