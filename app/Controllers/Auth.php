@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\UsuarioModel;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class Auth extends BaseController
 {
@@ -41,30 +43,123 @@ class Auth extends BaseController
             if (password_verify($password, $pass)) {
                 $auth = true;
             } 
-            // Si la contraseña en BD es texto plano la encriptamos (esto solo pasará la primera vez, luego se encripta)
             elseif ($password === $pass) {
                 $auth = true;
-                // Actualiza la BD con el hash seguro
                 $model->update($data['id'], ['password' => password_hash($password, PASSWORD_DEFAULT)]);
             }
 
             if ($auth) {
-                $ses_data = [
-                    'id'       => $data['id'],
-                    'nombre'   => $data['nombre'],
-                    'email'    => $data['correo'],
-                    'rol'      => $data['rol'],
-                    'foto_perfil' => $data['foto_perfil'] ?? null,
-                    'is_logged_in' => true
+                // ==========================================
+                // MAGIA JWT: Crear Token de 5 Minutos
+                // ==========================================
+                $llave_secreta = getenv('JWT_SECRET');
+                $payload = [
+                    'iat' => time(), 
+                    'exp' => time() + (5 * 60), 
+                    'id_usuario' => $data['id']
                 ];
-                $session->set($ses_data);
-                return $this->redirigirPorRol($data['rol']);
+
+                $token_acceso = JWT::encode($payload, $llave_secreta, 'HS256');
+
+                // ==========================================
+                // ENVIAR EL CORREO AL USUARIO
+                // ==========================================
+                $email_service = \Config\Services::email();
+
+                $config = [
+                    'protocol'   => getenv('email.protocol'),
+                    'SMTPHost'   => getenv('email.SMTPHost'),
+                    'SMTPUser'   => getenv('email.SMTPUser'),
+                    'SMTPPass'   => getenv('email.SMTPPass'),
+                    'SMTPPort'   => (int) getenv('email.SMTPPort'),
+                    'SMTPCrypto' => getenv('email.SMTPCrypto'),
+                    'mailType'   => getenv('email.mailType'),
+                    'charset'    => getenv('email.charset'),
+                    'CRLF'       => "\r\n", 
+                    'newline'    => "\r\n"  
+                ];
+                
+                $email_service->initialize($config);
+
+                // Definimos quién lo envía y a quién va
+                $email_service->setFrom(getenv('email.SMTPUser'), 'NewPhoneMX Seguridad');
+                $email_service->setTo($data['correo']);
+                $email_service->setSubject('Acceso Seguro a tu Cuenta - NewPhoneMX');
+                
+                $enlace = base_url('auth/validar_token/' . $token_acceso);
+                
+                $html = "<h2>Hola, " . $data['nombre'] . "</h2>";
+                $html .= "<p>Has solicitado iniciar sesión. Haz clic en el botón de abajo para entrar de forma segura a tu cuenta.</p>";
+                $html .= "<p><b>⚠️ Este enlace caduca en exactamente 5 minutos por tu seguridad.</b></p>";
+                $html .= "<a href='{$enlace}' style='display:inline-block; padding:10px 20px; background-color:#6f42c1; color:#ffffff; text-decoration:none; border-radius:5px; font-weight:bold;'>Ingresar a mi cuenta</a>";
+                $html .= "<br><br><p><small>Si no solicitaste este acceso, puedes ignorar este correo.</small></p>";
+                
+                $email_service->setMessage($html);
+                
+                if ($email_service->send()) {
+                    $session->setFlashdata('success', 'Te hemos enviado un enlace de seguridad a tu correo. Tienes 5 minutos para confirmar tu acceso.');
+                } else {
+                    $session->setFlashdata('msg', 'Hubo un problema al enviar el correo. Por favor, intenta de nuevo o contacta a soporte.');
+                }
+                
+                return redirect()->to('/login');
             } else {
                 $session->setFlashdata('msg', 'Contraseña incorrecta');
                 return redirect()->to('/login');
             }
         } else {
             $session->setFlashdata('msg', 'Correo no encontrado');
+            return redirect()->to('/login');
+        }
+    }
+
+    // =========================================================
+    // VALIDAR EL CLIC DESDE EL CORREO
+    // =========================================================
+    public function validar_token($token)
+    {
+        $session = session();
+        $llave_secreta = getenv('JWT_SECRET');
+
+        try {
+            $decodificado = JWT::decode($token, new Key($llave_secreta, 'HS256'));
+            
+            // Si llegamos aquí, el token es completamente válido y está en tiempo.
+            $id_usuario = $decodificado->id_usuario;
+
+            $model = new UsuarioModel();
+            $data = $model->find($id_usuario);
+
+            if (!$data || $data['activo'] == 0) {
+                $session->setFlashdata('msg', 'Usuario no encontrado o inactivo.');
+                return redirect()->to('/login');
+            }
+
+            // Crear el Token de Sesión de 1 DÍA (Mantiene la sesión viva por 24 horas)
+            $payload_sesion = [
+                'iat' => time(),
+                'exp' => time() + (24 * 60 * 60), // 24 horas * 60 minutos * 60 segundos
+                'id_usuario' => $data['id']
+            ];
+            $token_sesion = JWT::encode($payload_sesion, $llave_secreta, 'HS256');
+
+            // Iniciar sesión finalmente
+            $ses_data = [
+                'id'           => $data['id'],
+                'nombre'       => $data['nombre'],
+                'email'        => $data['correo'],
+                'rol'          => $data['rol'],
+                'foto_perfil'  => $data['foto_perfil'] ?? null,
+                'token_sesion' => $token_sesion, 
+                'is_logged_in' => true
+            ];
+            $session->set($ses_data);
+
+            return $this->redirigirPorRol($data['rol']);
+
+        } catch (\Exception $e) {
+            // El token expiró o es inválido
+            $session->setFlashdata('msg', 'El enlace de seguridad ha caducado (pasaron más de 5 minutos) o es inválido. Vuelve a iniciar sesión.');
             return redirect()->to('/login');
         }
     }
