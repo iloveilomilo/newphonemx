@@ -59,6 +59,10 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Administrador', 'filter
     $routes->get('soporte', 'SoporteAdmin::index');
     $routes->get('soporte/chat/(:num)', 'SoporteAdmin::ver_chat/$1');
     $routes->post('soporte/responder', 'SoporteAdmin::responder');
+
+    // Perfil del Administrador
+    $routes->get('perfil', 'Perfil::index');
+    $routes->post('perfil/actualizar', 'Perfil::actualizar_datos');
 });
 
 // =================================================================
