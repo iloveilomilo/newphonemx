@@ -12,7 +12,8 @@ class Usuarios extends BaseController
         $model = new UsuarioModel();
         
         $data = [
-            'usuarios' => $model->findAll()
+            // Se restringe la consulta para obtener exclusivamente al personal del sistema
+            'usuarios' => $model->whereIn('rol', ['admin', 'atencion_cliente'])->findAll()
         ];
 
         return view('Administrador/usuarios', $data);

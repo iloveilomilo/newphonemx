@@ -49,7 +49,7 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Descripción</label>
-                    <textarea name="descripcion" class="form-control" rows="4"><?= $producto['descripcion'] ?? '' ?></textarea>
+                    <textarea name="descripcion" class="form-control" required rows="4"><?= $producto['descripcion'] ?? '' ?></textarea>
                 </div>
 
                 <div class="row mt-4 bg-light p-3 rounded mx-1">
