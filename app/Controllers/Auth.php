@@ -32,12 +32,14 @@ class Auth extends BaseController
             
             // Bloquear acceso a usuarios dados de baja
             if ($data['activo'] == 0) {
+                log_message('warning', 'Intento de acceso denegado (Cuenta Inactiva). Correo: ' . $email);
                 $session->setFlashdata('msg', 'Tu cuenta ha sido desactivada. Contacta a soporte.');
                 return redirect()->to('/login');
             }
 
             // Verificar si la cuenta está bloqueada por intentos fallidos
             if (isset($data['bloqueado']) && $data['bloqueado'] == 1) {
+                log_message('warning', 'Intento de acceso a cuenta BLOQUEADA. Correo: ' . $email);
                 $session->setFlashdata('msg', 'Tu cuenta ha sido bloqueada tras 3 intentos fallidos.');
                 return redirect()->to('/login');
             }
@@ -108,6 +110,7 @@ class Auth extends BaseController
                 $email_service->setMessage($html);
                 
                 if ($email_service->send()) {
+                    log_message('info', 'Token JWT de acceso enviado por correo al usuario ID: ' . $data['id']);
                     $session->setFlashdata('success', 'Te hemos enviado un enlace de seguridad a tu correo. Tienes 5 minutos para confirmar tu acceso.');
                 } else {
                     $session->setFlashdata('msg', 'Hubo un problema al enviar el correo. Por favor, intenta de nuevo o contacta a soporte.');
@@ -125,18 +128,22 @@ class Auth extends BaseController
                     // Bloqueamos la cuenta
                     $datosUpdate['bloqueado'] = 1;
                     $model->update($data['id'], $datosUpdate);
+                    log_message('critical', 'CUENTA BLOQUEADA por múltiples intentos fallidos. Correo: ' . $email);
                     $session->setFlashdata('msg', 'Contraseña incorrecta. Has alcanzado el límite de 3 intentos y tu cuenta ha sido bloqueada. Usa "Recuperar Contraseña".');
                 } else {
                     // Restamos y mostramos cuántos quedan
                     $model->update($data['id'], $datosUpdate);
                     $intentosRestantes = 3 - $nuevosIntentos;
+                    log_message('notice', 'Contraseña incorrecta. Correo: ' . $email . '. Intentos restantes: ' . $intentosRestantes);
                     $session->setFlashdata('msg', "Contraseña incorrecta. Te quedan {$intentosRestantes} intento(s) antes de bloquear la cuenta.");
                 }
+                
 
                 return redirect()->to('/login');
             }
         } else {
             $session->setFlashdata('msg', 'Correo no encontrado');
+            log_message('notice', 'Intento de login con correo inexistente: ' . $email);
             return redirect()->to('/login');
         }
     }
@@ -187,6 +194,7 @@ class Auth extends BaseController
 
         } catch (\Exception $e) {
             // El token expiró o es inválido
+            log_message('error', 'Fallo de seguridad: Intento de uso de JWT inválido o expirado. Error: ' . $e->getMessage());
             $session->setFlashdata('msg', 'El enlace de seguridad ha caducado (pasaron más de 5 minutos) o es inválido. Vuelve a iniciar sesión.');
             return redirect()->to('/login');
         }
@@ -383,6 +391,8 @@ class Auth extends BaseController
 
         $model->update($usuario['id'], $datosUpdate);
 
+        log_message('info', 'Contraseña restablecida exitosamente para el usuario ID: ' . $usuario['id']);
+        
         return $this->response->setJSON(['success' => true, 'msg' => '¡Tu contraseña ha sido restablecida y tu cuenta desbloqueada!']);
     }
 }
