@@ -27,4 +27,12 @@ class CategoriaModel extends Model
     {
         return $this->update($id, ['activo' => 0]);
     }
+
+    // ==========================================
+    // REACTIVACIÓN
+    // ==========================================
+    public function reactivarCategoria($id)
+    {
+        return $this->update($id, ['activo' => 1]);
+    }
 }

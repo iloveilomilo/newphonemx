@@ -31,11 +31,13 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Administrador', 'filter
     $routes->get('categorias', 'Categorias::index');
     $routes->post('categorias/guardar', 'Categorias::store');
     $routes->get('categorias/eliminar/(:num)', 'Categorias::delete/$1');
+    $routes->get('categorias/reactivar/(:num)', 'Categorias::reactivar/$1');
     
     // Filtros
     $routes->get('filtros', 'Filtros::index');
     $routes->post('filtros/guardar', 'Filtros::store');
     $routes->get('filtros/eliminar/(:num)', 'Filtros::delete/$1');
+    $routes->get('filtros/reactivar/(:num)', 'Filtros::reactivar/$1');
 
     // Usuarios
     $routes->get('usuarios', 'Usuarios::index');

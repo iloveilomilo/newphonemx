@@ -14,6 +14,8 @@ class ProductoClienteModel extends Model
     {
         $builder = $this->select('productos.*, inventario.id as inventario_id, inventario.precio, inventario.stock, inventario.condicion, inventario.descuento, inventario.sku');
         $builder->join('inventario', 'inventario.producto_id = productos.id');
+        $builder->join('categorias', 'categorias.id = productos.categoria_id');
+        $builder->where('categorias.activo', 1);
         $builder->where('productos.fecha_eliminacion', null);
         $builder->where('inventario.activo', 1);
         $builder->where('inventario.stock >', 0);
