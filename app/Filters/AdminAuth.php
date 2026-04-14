@@ -20,7 +20,7 @@ class AdminAuth implements FilterInterface
             return redirect()->to('/dashboard/cliente')->with('alerta_intruso', 'Acceso denegado. Área exclusiva de administración.');
         }
 
-        $tiempo_maximo = 9000; 
+        $tiempo_maximo = 900; 
 
         if ($session->has('ultima_actividad')) {
             $tiempo_inactivo = time() - $session->get('ultima_actividad');
