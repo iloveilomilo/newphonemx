@@ -113,6 +113,28 @@
         </div>
     </div>
 
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h5>Resueltos</h5>
+                <h3 class="text-success">12</h3>
+            </div>
+        </div>
+    </div>
+    <div style="margin-top:30px;">
+    <a href="<?= base_url('soporte/mensajes') ?>" class="btn btn-primary">
+        Ver Mensajes
+    </a>
+
+    <a href="<?= base_url('soporte/historial') ?>" class="btn btn-secondary">
+        Ver Historial
+    </a>
+
+    <a href="<?= base_url('soporte/responder') ?>" class="btn btn-success">
+        Responder Mensaje
+    </a>
+</div>
+
 </div>
 
 <?= $this->endSection() ?>

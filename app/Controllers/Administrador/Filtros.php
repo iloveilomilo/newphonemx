@@ -12,7 +12,7 @@ class Filtros extends BaseController
         $model = new FiltroModel();
         
         $data = [
-            'filtros' => $model->findAll()
+            'filtros' => $model->obtenerActivos()
         ];
 
         return view('Administrador/filtros', $data);
@@ -28,18 +28,19 @@ class Filtros extends BaseController
         }
 
         $model->save([
-            'nombre' => $this->request->getPost('nombre')
+            'nombre' => $this->request->getPost('nombre'),
+            'activo' => 1  
         ]);
 
-        return redirect()->to('/dashboard/filtros')->with('msg', 'Filtro creado con éxito');
+        return redirect()->to('/admin/filtros')->with('msg', 'Filtro creado con éxito');
     }
 
     public function delete($id)
     {
         $model = new FiltroModel();
-        //  aquí validaremos que el filtro no esté usándose en productos antes de eliminar
-        $model->delete($id);
         
-        return redirect()->to('/dashboard/filtros')->with('msg', 'Filtro eliminado');
+        $model->bajaLogica($id);
+        
+        return redirect()->to('/admin/filtros')->with('msg', 'Filtro ocultado correctamente');
     }
 }

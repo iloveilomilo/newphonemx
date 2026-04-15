@@ -3,10 +3,10 @@
 namespace App\Controllers\Administrador;
 
 use App\Controllers\BaseController;
+use App\Models\ProductoModel;
 
 class Productos extends BaseController
 {
-    // Conexión directa a la BD para usar Query Builder
     protected $db;
 
     public function __construct()
@@ -16,50 +16,53 @@ class Productos extends BaseController
 
     public function index()
     {
-        // Hacemos un JOIN para mostrar precio y stock en la lista
-        $builder = $this->db->table('productos');
-        $builder->select('productos.*, inventario.precio, inventario.stock, inventario.condicion');
-        $builder->join('inventario', 'inventario.producto_id = productos.id');
-        $builder->where('productos.fecha_eliminacion', null); // Soft delete check
-        
-        $data['productos'] = $builder->get()->getResultArray();
-
+        $productoModel = new ProductoModel();
+        $data = [
+            'productos' => $productoModel->obtenerInventarioCompleto()
+        ];
         return view('Administrador/productos/index', $data);
     }
 
     public function create()
     {
-        // Necesitamos cargar Categorías y Filtros para el formulario
-        $data['categorias'] = $this->db->table('categorias')->get()->getResultArray();
-        $data['filtros']    = $this->db->table('filtros')->get()->getResultArray();
+        $data['categorias'] = $this->db->table('categorias')->where('activo', 1)->get()->getResultArray();
+        $data['filtros']    = $this->db->table('filtros')->where('activo', 1)->get()->getResultArray();
+        return view('Administrador/productos/crear', $data);
+    }
+
+    // =================================================================
+    // EDITAR PRODUCTO
+    // =================================================================
+    public function edit($id)
+    {
+        $productoModel = new \App\Models\ProductoModel();
+
+        $data['producto'] = $productoModel->obtenerProductoCompletoPorId($id);
+
+        if (!$data['producto']) {
+            return redirect()->to('/admin/productos')->with('msg', 'El producto no existe.');
+        }
+
+        $data['categorias'] = $this->db->table('categorias')->where('activo', 1)->get()->getResultArray();
+        $data['filtros']    = $this->db->table('filtros')->where('activo', 1)->get()->getResultArray();
+        $data['valoresFiltros'] = $this->db->table('valores_filtros')->where('inventario_id', $data['producto']['inventario_id'])->get()->getResultArray();
+        $data['imagenesGaleria'] = $this->db->table('imagenes_producto')->where('producto_id', $id)->get()->getResultArray();
 
         return view('Administrador/productos/crear', $data);
     }
 
     public function store()
     {
-        // 1. Validación de la imagen
+        // 1. Manejo de la Imagen Principal
         $img = $this->request->getFile('imagen');
-        
         if (!$img->isValid()) {
-            return redirect()->back()->with('msg', 'Debes subir una imagen válida.');
+            return redirect()->back()->with('msg', 'Debes subir una imagen de portada válida.');
         }
 
-        // 2. Subir la imagen primero 
         $nuevoNombre = $img->getRandomName();
-        // Movemos la imagen. Si esto falla, el catch lo atrapará  
-        try {
-            $img->move(ROOTPATH . 'public/uploads/productos', $nuevoNombre);
-        } catch (\Throwable $e) {
-            return redirect()->back()->with('msg', 'Error al subir la imagen al servidor.');
-        }
+        $img->move(ROOTPATH . 'public/uploads/productos', $nuevoNombre);
 
-        // --- INICIO DEL PROCESO SEGURO ---
         try {
-            // Iniciamos la transacción manualmente
-            $this->db->transException(true)->transStart();
-
-            // A) INSERT EN PRODUCTOS
             $datosProducto = [
                 'categoria_id'     => $this->request->getPost('categoria_id'),
                 'nombre'           => $this->request->getPost('nombre'),
@@ -67,77 +70,123 @@ class Productos extends BaseController
                 'descripcion'      => $this->request->getPost('descripcion'),
                 'imagen_principal' => $nuevoNombre
             ];
-            $this->db->table('productos')->insert($datosProducto);
-            $productoId = $this->db->insertID(); 
 
-            // B) INSERT EN INVENTARIO
-            $datosInventario = [
-                'producto_id' => $productoId,
-                'sku'         => $this->request->getPost('sku'),  
-                'condicion'   => $this->request->getPost('condicion'),
-                'precio'      => $this->request->getPost('precio'),
-                'stock'       => $this->request->getPost('stock'),
-                'descuento'   => $this->request->getPost('descuento') ?? 0,
-                'activo'      => 1
-            ];
-            $this->db->table('inventario')->insert($datosInventario);
-            $inventarioId = $this->db->insertID();
+            $postData = $this->request->getPost();
+            $productoModel = new ProductoModel();
+            $skuGenerado = $productoModel->guardarProductoCompleto($datosProducto, $postData);
 
-            // C) INSERT FILTROS
-            $filtros = $this->db->table('filtros')->get()->getResultArray();
-            foreach ($filtros as $filtro) {
-                $valor = $this->request->getPost('filtro_' . $filtro['id']);
-                if (!empty($valor)) {
-                    $this->db->table('valores_filtros')->insert([
-                        'inventario_id' => $inventarioId,
-                        'filtro_id'     => $filtro['id'],
-                        'valor'         => $valor
-                    ]);
+            if ($files = $this->request->getFiles()) {
+
+                $productoRecienCreado = $productoModel->orderBy('id', 'DESC')->first();
+                $nuevoProductoID = $productoRecienCreado['id'];
+
+                if (isset($files['galeria'])) {
+                    foreach ($files['galeria'] as $fotoGaleria) {
+                        if ($fotoGaleria->isValid() && !$fotoGaleria->hasMoved()) {
+                            $nombreGaleria = $fotoGaleria->getRandomName();
+                            $fotoGaleria->move(ROOTPATH . 'public/uploads/productos', $nombreGaleria);
+
+                            $this->db->table('imagenes_producto')->insert([
+                                'producto_id' => $nuevoProductoID,
+                                'nombre_archivo' => $nombreGaleria
+                            ]);
+                        }
+                    }
                 }
             }
 
-            // Si llegamos aquí, todo salió bien. Confirmamos cambios.
-            $this->db->transComplete();
-
-            return redirect()->to('/dashboard/productos')->with('msg', 'Producto publicado correctamente.');
-
+            return redirect()->to('/admin/productos')->with('msg', '¡Éxito! Producto y galería publicados. Código: <strong>' . $skuGenerado . '</strong>');
         } catch (\Throwable $e) {
-            // ¡ALERTA! Algo salió mal.
-            
-            // 1. Cancelamos cualquier cambio en la BD  
-            if ($this->db->transStatus() === false) {
-                $this->db->transRollback();
-            }
-
-            // 2. Borramos la imagen que subimos (Limpieza de basura)
+            // Si algo sale mal se borra la imagen que se subió
             if (file_exists(ROOTPATH . 'public/uploads/productos/' . $nuevoNombre)) {
                 unlink(ROOTPATH . 'public/uploads/productos/' . $nuevoNombre);
             }
+            return redirect()->back()->with('msg', 'Error al guardar. Detalle: ' . $e->getMessage())->withInput();
+        }
+    }
 
-            // 3. Mensaje para el usuario   
-            $mensajeError = 'Ocurrió un error inesperado al guardar el producto. Inténtalo de nuevo.';
-            
-            if (getenv('CI_ENVIRONMENT') === 'development') {
-                $mensajeError .= ' (Detalle: ' . $e->getMessage() . ')';
+    // =================================================================
+    // PROCESAR LA ACTUALIZACIÓN EN BASE DE DATOS
+    // =================================================================
+    public function actualizar($id)
+    {
+        $productoModel = new \App\Models\ProductoModel();
+
+        $productoActual = $productoModel->find($id);
+
+        $postData = $this->request->getPost();
+
+        $datosProducto = [
+            'categoria_id' => $postData['categoria_id'],
+            'nombre'       => $postData['nombre'],
+            'marca'        => $postData['marca'],
+            'descripcion'  => $postData['descripcion']
+        ];
+
+        $img = $this->request->getFile('imagen');
+        if ($img && $img->isValid() && !$img->hasMoved()) {
+            $nuevoNombre = $img->getRandomName();
+            $img->move(ROOTPATH . 'public/uploads/productos', $nuevoNombre);
+            $datosProducto['imagen_principal'] = $nuevoNombre;
+
+            if (!empty($productoActual['imagen_principal'])) {
+                $rutaVieja = ROOTPATH . 'public/uploads/productos/' . $productoActual['imagen_principal'];
+                if (file_exists($rutaVieja)) {
+                    unlink($rutaVieja);
+                }
+            }
+        }
+
+        try {
+            $productoModel->actualizarProductoCompleto($id, $datosProducto, $postData);
+
+            // =========================================================
+            // Se elmiminaron fotos viejas de la galeria?
+            // =========================================================
+            if ($imagenesAEliminar = $this->request->getPost('eliminar_imagenes')) {
+                foreach ($imagenesAEliminar as $img_id) {
+                    $imgData = $this->db->table('imagenes_producto')->where('id', $img_id)->get()->getRow();
+                    if ($imgData) {
+                        // se borra el archivo físico
+                        $rutaFisica = ROOTPATH . 'public/uploads/productos/' . $imgData->nombre_archivo;
+                        if (file_exists($rutaFisica)) {
+                            unlink($rutaFisica);
+                        }
+                        // y se borra de la bd
+                        $this->db->table('imagenes_producto')->where('id', $img_id)->delete();
+                    }
+                }
             }
 
-            return redirect()->back()->with('msg', $mensajeError)->withInput();
+            // =========================================================
+            // Se subieron fotos nuevas a la galeria?
+            // =========================================================
+            if ($files = $this->request->getFiles()) {
+                if (isset($files['galeria'])) {
+                    foreach ($files['galeria'] as $fotoGaleria) {
+                        if ($fotoGaleria->isValid() && !$fotoGaleria->hasMoved()) {
+                            $nombreGaleria = $fotoGaleria->getRandomName();
+                            $fotoGaleria->move(ROOTPATH . 'public/uploads/productos', $nombreGaleria);
+
+                            $this->db->table('imagenes_producto')->insert([
+                                'producto_id' => $id,
+                                'nombre_archivo' => $nombreGaleria
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            return redirect()->to('/admin/productos')->with('msg', '¡Producto actualizado correctamente!');
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('msg', 'Error al actualizar. Detalle: ' . $e->getMessage());
         }
     }
 
     public function delete($id)
-    { 
-        // En lugar de destruir la fila, le ponemos fecha de hoy en fecha_eliminacion
-        
-        $this->db->table('productos')->where('id', $id)->update([
-            'fecha_eliminacion' => date('Y-m-d H:i:s')
-        ]);
-
-        // Opcional: También desactivamos el inventario asociado para doble seguridad
-        $this->db->table('inventario')->where('producto_id', $id)->update([
-            'activo' => 0
-        ]);
-        
-        return redirect()->to('/dashboard/productos')->with('msg', 'Producto eliminado (enviado a papelera).');
+    {
+        $productoModel = new ProductoModel();
+        $productoModel->bajaLogica($id);
+        return redirect()->to('/admin/productos')->with('msg', 'Producto Dado de Baja.');
     }
 }
