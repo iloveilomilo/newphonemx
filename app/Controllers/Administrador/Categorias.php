@@ -12,7 +12,7 @@ class Categorias extends BaseController
         $model = new CategoriaModel();
         
         $data = [
-            'categorias' => $model->obtenerActivas() 
+            'categorias' => $model->findAll() 
         ];
 
         return view('Administrador/categorias', $data);
@@ -42,5 +42,14 @@ class Categorias extends BaseController
         $model->bajaLogica($id);
         
         return redirect()->to('/admin/categorias')->with('msg', 'Categoría desactivada correctamente.');
+    }
+
+    public function reactivar($id)
+    {
+        $model = new CategoriaModel();
+        
+        $model->reactivarCategoria($id);
+        
+        return redirect()->to('/admin/categorias')->with('msg', 'Categoría reactivada con éxito.');
     }
 }

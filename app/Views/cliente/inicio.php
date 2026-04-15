@@ -153,13 +153,19 @@
                                             data-galeria='<?= $prod['galeria'] ?>'> Ver Detalles
                                     </button>
                                     
-                                    <button class="btn btn-primary btn-sm btn-agregar-carrito" 
-                                            data-id="<?= $prod['inventario_id'] ?>" 
-                                            data-nombre="<?= $prod['nombre'] ?>" 
-                                            data-precio="<?= number_format($precioFinal, 2, '.', '') ?>" 
-                                            data-img="<?= $prod['imagen_principal'] ?>">
-                                        <i class="fas fa-cart-plus me-2"></i>Agregar
-                                    </button>
+                                    <?php if ($prod['stock'] > 0): ?>
+                                        <button class="btn btn-primary btn-sm btn-agregar-carrito" 
+                                                data-id="<?= $prod['inventario_id'] ?>" 
+                                                data-nombre="<?= $prod['nombre'] ?>" 
+                                                data-precio="<?= number_format($precioFinal, 2, '.', '') ?>" 
+                                                data-img="<?= $prod['imagen_principal'] ?>"
+                                                data-stock="<?= $prod['stock'] ?>"> <i class="fas fa-cart-plus me-2"></i>Agregar
+                                        </button>
+                                    <?php else: ?>
+                                        <button class="btn btn-secondary btn-sm w-100" disabled>
+                                            <i class="fas fa-times-circle me-2"></i>Agotado
+                                        </button>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -239,6 +245,7 @@
                     <button id="btnModalAgregar" class="btn btn-primary btn-lg btn-agregar-carrito">
                         <i class="fas fa-shopping-cart me-2"></i> Añadir al Carrito
                     </button>
+                    <small id="modalStockAviso" class="text-danger fw-bold d-none mt-2 text-center">Este producto no tiene stock disponible.</small>
                     <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Seguir viendo</button>
                 </div>
             </div>
@@ -323,12 +330,27 @@
                     ? 'badge bg-success' 
                     : 'badge bg-warning text-dark';
 
-                // Pasar los datos al botón "Agregar"
+                const stockDisponible = parseInt(stock);
                 const btnModal = document.getElementById('btnModalAgregar');
+                const avisoStock = document.getElementById('modalStockAviso');
+
+                if (stockDisponible <= 0) {
+                    btnModal.disabled = true;
+                    btnModal.classList.replace('btn-primary', 'btn-secondary');
+                    btnModal.innerHTML = '<i class="fas fa-times-circle me-2"></i> Agotado';
+                    if(avisoStock) avisoStock.classList.remove('d-none');
+                } else {
+                    btnModal.disabled = false;
+                    btnModal.classList.replace('btn-secondary', 'btn-primary');
+                    btnModal.innerHTML = '<i class="fas fa-shopping-cart me-2"></i> Añadir al Carrito';
+                    if(avisoStock) avisoStock.classList.add('d-none');
+                }
+                // Pasar los datos al botón "Agregar"
                 btnModal.setAttribute('data-id', id);
                 btnModal.setAttribute('data-nombre', nombre);
                 btnModal.setAttribute('data-precio', precioFinal);
                 btnModal.setAttribute('data-img', img);
+                btnModal.setAttribute('data-stock', stock);
             });
         });
 
@@ -355,7 +377,16 @@
                     
                     return; 
                 }
-
+                const stockMaximo = parseInt(this.getAttribute('data-stock'));
+                if (stockMaximo <= 0) {
+                    Swal.fire({
+                        title: '¡Producto Agotado!',
+                        text: 'Lo sentimos, este equipo ya no tiene unidades disponibles.',
+                        icon: 'error',
+                        confirmButtonColor: '#d33'
+                    });
+                    return; 
+                }
                 // Si SÍ está logueado, procedemos a agregarlo
                 const id = this.getAttribute('data-id');
                 const nombre = this.getAttribute('data-nombre');

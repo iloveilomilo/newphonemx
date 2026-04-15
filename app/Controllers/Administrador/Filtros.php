@@ -12,7 +12,7 @@ class Filtros extends BaseController
         $model = new FiltroModel();
         
         $data = [
-            'filtros' => $model->obtenerActivos()
+            'filtros' => $model->findAll()
         ];
 
         return view('Administrador/filtros', $data);
@@ -42,5 +42,14 @@ class Filtros extends BaseController
         $model->bajaLogica($id);
         
         return redirect()->to('/admin/filtros')->with('msg', 'Filtro ocultado correctamente');
+    }
+
+    public function reactivar($id)
+    {
+        $model = new FiltroModel();
+        
+        $model->reactivarFiltro($id);
+        
+        return redirect()->to('/admin/filtros')->with('msg', 'Filtro reactivado correctamente');
     }
 }

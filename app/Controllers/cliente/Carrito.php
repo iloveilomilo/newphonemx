@@ -57,7 +57,18 @@ class Carrito extends BaseController
                                ->where('inventario_id', $inventario_id)
                                ->first();
 
+
+        $db = \Config\Database::connect();
+        $producto = $db->table('inventario')->select('stock')->where('id', $inventario_id)->get()->getRowArray();
+
+        if (!$producto || $producto['stock'] <= 0) {
+            return $this->response->setJSON(['success' => false, 'mensaje' => 'Lo sentimos, este producto está agotado.']);
+        }
+
         if ($existe) {
+            if ($existe['cantidad'] >= $producto['stock']) {
+                return $this->response->setJSON(['success' => false, 'mensaje' => 'No puedes agregar más, solo hay ' . $producto['stock'] . ' disponibles.']);
+            }
             $carritoModel->update($existe['id'], ['cantidad' => $existe['cantidad'] + 1]);
         } else {
             $carritoModel->insert([
@@ -79,5 +90,39 @@ class Carrito extends BaseController
         $carritoModel->delete($id);
         
         return redirect()->to(base_url('carrito'));
+    }
+    
+    public function actualizar()
+    {
+        $id = $this->request->getPost('id');
+        $accion = $this->request->getPost('accion');
+        
+        $carritoModel = new \App\Models\CarritoModel();
+        
+        // Buscamos el registro exacto en el carrito
+        $item = $carritoModel->find($id);
+        
+        if ($item) {
+            $nuevaCantidad = $item['cantidad'];
+            
+        if ($accion == 'plus') {
+            $db = \Config\Database::connect();
+            $producto = $db->table('inventario')->select('stock')->where('id', $item['inventario_id'])->get()->getRowArray();
+
+            if ($nuevaCantidad >= $producto['stock']) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Límite de stock alcanzado (' . $producto['stock'] . ')']);
+            }
+            
+            $nuevaCantidad++;
+        }elseif ($accion == 'minus' && $nuevaCantidad > 1) {
+            $nuevaCantidad--;
+        }
+                    
+            $carritoModel->update($id, ['cantidad' => $nuevaCantidad]);
+            
+            return $this->response->setJSON(['success' => true]);
+        }
+        
+        return $this->response->setJSON(['success' => false, 'message' => 'Error al actualizar']);
     }
 }

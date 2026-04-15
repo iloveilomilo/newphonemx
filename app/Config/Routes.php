@@ -31,11 +31,13 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Administrador', 'filter
     $routes->get('categorias', 'Categorias::index');
     $routes->post('categorias/guardar', 'Categorias::store');
     $routes->get('categorias/eliminar/(:num)', 'Categorias::delete/$1');
+    $routes->get('categorias/reactivar/(:num)', 'Categorias::reactivar/$1');
     
     // Filtros
     $routes->get('filtros', 'Filtros::index');
     $routes->post('filtros/guardar', 'Filtros::store');
     $routes->get('filtros/eliminar/(:num)', 'Filtros::delete/$1');
+    $routes->get('filtros/reactivar/(:num)', 'Filtros::reactivar/$1');
 
     // Usuarios
     $routes->get('usuarios', 'Usuarios::index');
@@ -54,6 +56,15 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Administrador', 'filter
 
     // Eliminación/Baja de Productos
     $routes->get('productos/eliminar/(:num)', 'Productos::delete/$1');
+
+    // Soporte Interno (Chat entre Administrador y Atencion al Cliente)
+    $routes->get('soporte', 'SoporteAdmin::index');
+    $routes->get('soporte/chat/(:num)', 'SoporteAdmin::ver_chat/$1');
+    $routes->post('soporte/responder', 'SoporteAdmin::responder');
+
+    // Perfil del Administrador
+    $routes->get('perfil', 'Perfil::index');
+    $routes->post('perfil/actualizar', 'Perfil::actualizar_datos');
 });
 
 // =================================================================
@@ -88,7 +99,35 @@ $routes->group('soporte', ['namespace' => 'App\Controllers\Soporte', 'filter' =>
 $routes->get('carrito', 'cliente\Carrito::index', ['filter' => 'clienteAuth']);
 $routes->post('carrito/agregar', 'cliente\Carrito::agregar', ['filter' => 'clienteAuth']);
 $routes->get('carrito/eliminar/(:segment)', 'cliente\Carrito::eliminar/$1', ['filter' => 'clienteAuth']);
+$routes->post('carrito/actualizar', 'cliente\Carrito::actualizar', ['filter' => 'clienteAuth']); 
 $routes->post('soporte/enviar_duda', 'cliente\SoporteCliente::enviar_duda', ['filter' => 'clienteAuth']);
+
+// Historial de preguntas del cliente
+$routes->get('mis-preguntas', 'cliente\SoporteCliente::mis_preguntas', ['filter' => 'clienteAuth']);
+// Rutas para el chat individual
+$routes->get('mis-preguntas/chat/(:num)', 'cliente\SoporteCliente::ver_chat/$1', ['filter' => 'clienteAuth']);
+$routes->post('mis-preguntas/responder', 'cliente\SoporteCliente::responder_chat', ['filter' => 'clienteAuth']);
+
+// Rutas para Mi Perfil y Direcciones
+$routes->get('perfil', 'cliente\Perfil::index', ['filter' => 'clienteAuth']);
+$routes->post('perfil/actualizar_datos', 'cliente\Perfil::actualizar_datos', ['filter' => 'clienteAuth']);
+$routes->post('perfil/guardar_direccion', 'cliente\Perfil::guardar_direccion', ['filter' => 'clienteAuth']);
+$routes->get('perfil/eliminar_direccion/(:num)', 'cliente\Perfil::eliminar_direccion/$1', ['filter' => 'clienteAuth']);
+
+//Envio de correo login
+$routes->get('auth/validar_token/(:any)', 'Auth::validar_token/$1');
+$routes->post('auth/pre_registro', 'Auth::pre_registro');
+$routes->post('auth/verificar_codigo', 'Auth::verificar_codigo');
+$routes->post('auth/solicitar_recuperacion', 'Auth::solicitar_recuperacion');
+$routes->post('auth/restablecer_password', 'Auth::restablecer_password');
+
+// Rutas para Pagos y Checkout
+$routes->get('checkout', 'cliente\Checkout::index', ['filter' => 'clienteAuth']);
+$routes->post('checkout/procesar', 'cliente\Checkout::procesar', ['filter' => 'clienteAuth']);
+$routes->get('checkout/exito', 'cliente\Checkout::exito', ['filter' => 'clienteAuth']);
+
+//mis compras
+$routes->get('mis-compras', 'cliente\Compras::index', ['filter' => 'clienteAuth']);
 
 // Grupo para futuras rutas exclusivas
 $routes->group('cliente', ['namespace' => 'App\Controllers\Cliente', 'filter' => 'clienteAuth'], function($routes) {

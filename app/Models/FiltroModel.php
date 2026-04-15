@@ -27,4 +27,12 @@ class FiltroModel extends Model
     {
         return $this->update($id, ['activo' => 0]);
     }
+
+    // =================================================================
+    // REACTIVACIÓN (ALTA LÓGICA)
+    // =================================================================
+    public function reactivarFiltro($id)
+    {
+        return $this->update($id, ['activo' => 1]);
+    }
 }
