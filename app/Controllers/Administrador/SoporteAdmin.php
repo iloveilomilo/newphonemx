@@ -3,59 +3,42 @@
 namespace App\Controllers\Administrador;
 
 use App\Controllers\BaseController;
-use App\Models\ChatModel;
 
-class SoporteAdmin extends BaseController
+class SoporteAdmin extends BaseController // O Soporte, según se llame tu archivo
 {
+    // 1. Vista principal
     public function index()
     {
-        $chatModel = new ChatModel();
-        
-        // Buscamos todas las conversaciones donde el admin actual está involucrado
-        $mi_id = session('id');
-        $data['chats'] = $chatModel->obtenerMisChatsInternos($mi_id);
-        
-        return view('Administrador/soporte/index', $data);
+        $atencionModel = new \App\Models\AtencionModel();
+        $data['chats'] = $atencionModel->obtenerTickets();
+        return view('AtencionCliente/index', $data);
     }
 
-    public function ver_chat($sala_id)
+    // 2. LA QUE FALLA: Ver Mensajes
+   public function mensajes() {
+    $model = new \App\Models\AtencionModel();
+    
+    // Obtenemos los datos de la base
+    $res = $model->obtenerConversaciones();
+    
+    // Si la base está vacía, mandamos un array vacío para que no marque el error de count()
+    $data['conversaciones'] = $res ? $res : []; 
+    
+    return view('AtencionCliente/mensajes', $data);
+}
+
+    // 3. Ver Historial
+    public function historial()
     {
-        $chatModel = new ChatModel();
-        
-        // Verificamos que la sala exista
-        $sala = $chatModel->find($sala_id);
-        if(!$sala) {
-            return redirect()->to('/admin/soporte')->with('msg', 'La sala de chat no existe.');
-        }
-
-        $mi_id = session('id');
-        $data['chats'] = $chatModel->obtenerMisChatsInternos($mi_id); // Para la barra lateral
-        $data['sala_actual'] = $sala;
-        $data['mensajes'] = $chatModel->obtenerMensajesDeSala($sala_id);
-        
-        return view('Administrador/soporte/index', $data);
+        $atencionModel = new \App\Models\AtencionModel();
+        // Traemos los mensajes que ya están 'resuelto'
+        $data['chats'] = $atencionModel->obtenerTickets('resuelto');
+        return view('AtencionCliente/historial', $data);
     }
 
+    // 4. Responder Mensaje
     public function responder()
     {
-        $sala_id = $this->request->getPost('sala_chat_id');
-        $mensaje = $this->request->getPost('mensaje');
-        $mi_id = session('id');
-
-        if(empty($mensaje)) {
-            return redirect()->back()->with('msg', 'No puedes enviar un mensaje vacío.');
-        }
-
-        $chatModel = new ChatModel();
-        $chatModel->guardarMensaje([
-            'sala_chat_id' => $sala_id,
-            'remitente_id' => $mi_id,
-            'mensaje'      => $mensaje,
-            'fecha_envio'  => date('Y-m-d H:i:s')
-        ]);
-
-        $chatModel->update($sala_id, ['estado' => 'en_proceso']);
-
-        return redirect()->to('/admin/soporte/chat/' . $sala_id);
+        return view('AtencionCliente/responder');
     }
 }

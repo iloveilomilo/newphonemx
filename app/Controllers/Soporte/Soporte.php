@@ -1,133 +1,62 @@
 <?php
 
-namespace App\Controllers\Soporte;
+namespace App\Controllers\Administrador;
 
 use App\Controllers\BaseController;
+use App\Models\AtencionModel;
 
-class Soporte extends BaseController
+class SoporteAdmin extends BaseController
 {
-    // ==========================================
-    // 1. FUNCIONES PARA MOSTRAR LAS VISTAS
-    // ==========================================
-    
-    public function index()
-    {
-        $data['rol'] = session()->get('rol') ?? 'atencion_cliente'; 
+    protected $atencionModel;
+
+    public function __construct() {
+        $this->atencionModel = new AtencionModel();
+    }
+
+    // 1. Responder Dudas
+    public function index() {
+        $data['chats'] = $this->atencionModel->obtenerTickets();
         return view('AtencionCliente/index', $data);
     }
 
-    public function mensajes()
-    {
-        $db = \Config\Database::connect();
-        
-        // Traemos todas las conversaciones reales ordenadas por fecha
-        $builder = $db->table('salas_chat');
-        $builder->select('salas_chat.*, usuarios.nombre, usuarios.apellidos');
-        $builder->join('usuarios', 'usuarios.id = salas_chat.cliente_id', 'left');
-        $builder->where('salas_chat.estado !=', 'cerrada'); // No mostramos los archivados
-        $builder->orderBy('salas_chat.fecha_inicio', 'DESC');
-        
-        $conversaciones = $builder->get()->getResultArray();
-
-        $data = [
-            'conversaciones' => $conversaciones,
-            'rol'            => session()->get('rol') ?? 'atencion_cliente'
-        ];
-
+    // 2. Ver Mensajes (LA QUE TE DA ERROR)
+    public function mensajes() {
+        $data['chats'] = $this->atencionModel->obtenerTickets('pendiente');
         return view('AtencionCliente/mensajes', $data);
     }
 
-    public function historial()
-    {
-        $data['rol'] = session()->get('rol') ?? 'atencion_cliente';
+    // 3. Ver Historial
+    public function historial() {
+        $data['chats'] = $this->atencionModel->obtenerTickets('resuelto');
         return view('AtencionCliente/historial', $data);
     }
 
-    public function responder($id_conversacion = 1)
-    {
-        $db = \Config\Database::connect();
-        
-        $builder = $db->table('salas_chat');
-        $builder->select('salas_chat.*, usuarios.nombre, usuarios.apellidos');
-        $builder->join('usuarios', 'usuarios.id = salas_chat.cliente_id');
-        $builder->where('salas_chat.id', $id_conversacion);
-        
-        $conversacion = $builder->get()->getRowArray();
+    // 4. Cargar vista de responder
+    public function responder() {
+        return view('AtencionCliente/responder');
+    }
 
-        // Si la base de datos no encuentra la conversación, creamos una falsa
-        // para que la vista siempre funcione y no te marque error 404 ni pantallazo.
-        if (!$conversacion) {
-            $conversacion = [
-                'id' => 1,
-                'nombre' => 'Juan',
-                'apellidos' => 'Pérez (Prueba)',
-                'estado' => 'en_proceso',
-                'fecha_seguimiento' => ''
-            ];
-        }
-
-        $data = [
-            'conversacion' => $conversacion,
-            'rol'          => session()->get('rol') ?? 'atencion_cliente'
-        ];
-
+    // Función para ver un chat específico
+    public function ver_chat($id) {
+        $data['sala'] = $this->atencionModel->find($id);
+        $data['mensajes'] = $this->atencionModel->obtenerConversacion($id);
         return view('AtencionCliente/responder', $data);
     }
 
-    // ==========================================
-    // 2. FUNCIONES PARA PROCESAR LOS DATOS (NUEVAS)
-    // ==========================================
-
-    // Función para guardar el mensaje del chat
-    public function enviar_mensaje()
-    {
-        $id_conversacion = $this->request->getPost('id_conversacion');
+    // Función que procesa el envío
+    public function responder_post() {
+        $sala_id = $this->request->getPost('sala_chat_id');
         $mensaje = $this->request->getPost('mensaje');
-
-        if (!empty($mensaje)) {
-            // Aquí irá la lógica de inserción a la BD
+        
+        if ($mensaje) {
+            $this->atencionModel->enviarRespuesta([
+                'sala_chat_id' => $sala_id,
+                'remitente_id' => session('id'),
+                'mensaje'      => $mensaje,
+                'fecha_envio'  => date('Y-m-d H:i:s')
+            ]);
+            $this->atencionModel->update($sala_id, ['estado' => 'en_proceso']);
         }
-
-        // Recarga la página del chat
-        return redirect()->to(base_url('admin/soporte/responder/' . $id_conversacion))->with('msg', 'Mensaje enviado correctamente');
+        return redirect()->to('/admin/soporte/chat/' . $sala_id);
     }
-
-    // Función para guardar los cambios del panel lateral
-    public function actualizar_conversacion()
-    {
-        $id_conversacion = $this->request->getPost('id_conversacion');
-        $estado = $this->request->getPost('estado');
-        $fecha_seguimiento = $this->request->getPost('fecha_seguimiento');
-
-        // Aquí irá la lógica de actualización a la BD
-
-        return redirect()->to(base_url('admin/soporte/responder/' . $id_conversacion))->with('msg', 'Gestión actualizada');
-    }
-
-    // Función para el botón rojo de "Finalizar Conversación"
-    public function cerrar_conversacion($id_conversacion)
-    {
-        // Aquí irá la lógica para cerrar en la BD
-
-        // Al cerrar, te manda al historial directamente
-        return redirect()->to(base_url('admin/soporte/historial'))->with('msg', 'Conversación finalizada y archivada');
-    }
-
-    // ==========================================
-    // 3. FUNCIÓN PARA EL TIEMPO REAL (AJAX)
-    // ==========================================
-    public function obtener_mensajes_nuevos($id_sala)
-    {
-        $db = \Config\Database::connect();
-        
-        $builder = $db->table('mensajes_chat');
-        $builder->select('mensajes_chat.*, usuarios.nombre, usuarios.rol');
-        $builder->join('usuarios', 'usuarios.id = mensajes_chat.remitente_id');
-        $builder->where('sala_chat_id', $id_sala);
-        $builder->orderBy('fecha_envio', 'ASC');
-        
-        $mensajes = $builder->get()->getResultArray();
-
-        return $this->response->setJSON(['mensajes' => $mensajes]);
-    }
-}
+} // <--- ESTA LLAVE ES EL CIERRE DE TODO. NO ESCRIBAS NADA DESPUÉS DE ELLA.
