@@ -64,13 +64,12 @@ $routes->group('admin', function($routes) {
     $routes->get('soporte', 'Administrador\Soporte::index');
     $routes->get('soporte/mensajes', 'Administrador\Soporte::mensajes');
     $routes->get('soporte/historial', 'Administrador\Soporte::historial');
-    $routes->get('soporte/responder/(:num)', 'Administrador\Soporte::responder/$1');
-    $routes->get('soporte/obtener_mensajes_nuevos/(:num)', 'Administrador\Soporte::obtener_mensajes_nuevos/$1');
+    $routes->get('soporte/responder', 'Administrador\Soporte::responder');
+
+    // ¡Nuevas rutas para que los botones y formularios funcionen!
     $routes->post('soporte/enviar_mensaje', 'Administrador\Soporte::enviar_mensaje');
-    $routes->get('soporte/reabrir_conversacion/(:num)', 'Administrador\Soporte::reabrir_conversacion/$1');
     $routes->post('soporte/actualizar_conversacion', 'Administrador\Soporte::actualizar_conversacion');
-    $routes->get('soporte/archivar_conversacion/(:num)', 'Administrador\Soporte::archivar_conversacion/$1');
-    
+    $routes->get('soporte/cerrar_conversacion/(:num)', 'Administrador\Soporte::cerrar_conversacion/$1');
 });
 $routes->group('soporte', ['namespace' => 'App\Controllers\Soporte', 'filter' => 'soporteAuth'], function($routes) {
     $routes->get('soporte', 'Soporte::index');

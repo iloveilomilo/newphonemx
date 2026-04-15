@@ -7,17 +7,15 @@
         <span class="badge bg-primary fs-6"><?= count($conversaciones) ?> Tickets Abiertos</span>
     </div>
 
-    <ul class="nav nav-tabs mb-4" id="tabs-filtro">
+    <ul class="nav nav-tabs mb-4">
         <li class="nav-item">
-            <a class="nav-link tab-filtro active fw-bold text-primary" href="#" data-filtro="todos">
-                <i class="fas fa-filter"></i> Todos los Abiertos
-            </a>
+            <a class="nav-link active fw-bold text-primary" href="#"><i class="fas fa-filter"></i> Todos los Abiertos</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link tab-filtro text-muted" href="#" data-filtro="nuevo">Nuevos</a>
+            <a class="nav-link text-muted" href="#">Nuevos</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link tab-filtro text-muted" href="#" data-filtro="en_proceso">En Proceso</a>
+            <a class="nav-link text-muted" href="#">En Proceso</a>
         </li>
     </ul>
 
@@ -35,9 +33,9 @@
                             <th class="text-center pe-4">Acción</th>
                         </tr>
                     </thead>
-                    <tbody id="cuerpo-tabla-tickets">
+                    <tbody>
                         <?php if(empty($conversaciones)): ?>
-                            <tr id="mensaje-vacio">
+                            <tr>
                                 <td colspan="6" class="text-center py-5 text-muted">
                                     <i class="fas fa-check-circle fs-1 text-success mb-3 d-block"></i>
                                     <h5>¡Todo limpio!</h5>
@@ -46,7 +44,7 @@
                             </tr>
                         <?php else: ?>
                             <?php foreach($conversaciones as $conv): ?>
-                                <tr class="fila-ticket fila-<?= $conv['estado'] ?>">
+                                <tr>
                                     <td class="ps-4 fw-bold text-secondary">#<?= str_pad($conv['id'], 4, '0', STR_PAD_LEFT) ?></td>
                                     
                                     <td>
@@ -94,44 +92,5 @@
         </div>
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const tabs = document.querySelectorAll('.tab-filtro');
-        const filas = document.querySelectorAll('.fila-ticket');
-
-        tabs.forEach(tab => {
-            tab.addEventListener('click', function(e) {
-                e.preventDefault(); // Evita que la página salte hacia arriba
-
-                // 1. Quitarle lo "activo" (el color azul y negritas) a todas las pestañas
-                tabs.forEach(t => {
-                    t.classList.remove('active', 'fw-bold', 'text-primary');
-                    t.classList.add('text-muted');
-                });
-
-                // 2. Ponerle lo "activo" solo a la pestaña que tocaste
-                this.classList.remove('text-muted');
-                this.classList.add('active', 'fw-bold', 'text-primary');
-
-                // 3. Obtener qué queremos filtrar (todos, nuevo, o en_proceso)
-                const filtro = this.getAttribute('data-filtro');
-
-                // 4. Mostrar u ocultar filas dependiendo del filtro
-                filas.forEach(fila => {
-                    if (filtro === 'todos') {
-                        fila.style.display = ''; // Muestra todo
-                    } else {
-                        if (fila.classList.contains('fila-' + filtro)) {
-                            fila.style.display = ''; // Muestra si coincide
-                        } else {
-                            fila.style.display = 'none'; // Oculta si no coincide
-                        }
-                    }
-                });
-            });
-        });
-    });
-</script>
 
 <?= $this->endSection() ?>
